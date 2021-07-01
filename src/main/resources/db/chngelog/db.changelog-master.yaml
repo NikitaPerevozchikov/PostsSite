@@ -1,0 +1,592 @@
+databaseChangeLog:
+  - logicalFilePath: db/changelog/db.changelog-001.yaml
+  - changeSet:
+      id: 00001
+      author: NikitaPerevozchikov
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: is_moderator
+                  type: TINYINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reg_time
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(255)
+              - column:
+                  name: photo
+                  type: TEXT
+        - createTable:
+            tableName: posts
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: TINYINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: moderation_status
+                  type: ENUM("NEW", "ACCEPTED","DECLINED")
+                  constraints:
+                    nullable: false
+              - column:
+                  name: moderator_id
+                  type: INT
+              - column:
+                  name: user_id
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: view_count
+                  type: INT
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: post_votes
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: post_id
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: TINYINT
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: tags
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: tag2post
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: post_id
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: INT
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: post_comments
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: parent_id
+                  type: INT
+              - column:
+                  name: post_id
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: TEXT
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: captcha_codes
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: time
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: TINYTEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secret_code
+                  type: TINYTEXT
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: global_settings
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 00002
+      author: NikitaPerevozchikov
+      comment: "Create table users"
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: is_moderator
+                  value: "1"
+              - column:
+                  name: reg_time
+                  value: "23.06.2021"
+              - column:
+                  name: name
+                  value: "Николай"
+              - column:
+                  name: email
+                  value: "nikolai@mail.ru"
+              - column:
+                  name: password
+                  value: "123"
+              - column:
+                  name: code
+                  value: "123"
+              - column:
+                  name: photo
+                  value: "Мой компютер/Моя папка/Моё фото.jpg"
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: is_moderator
+                  value: "0"
+              - column:
+                  name: reg_time
+                  value: "15.06.2021"
+              - column:
+                  name: name
+                  value: "Пётр"
+              - column:
+                  name: email
+                  value: "petr@mail.ru"
+              - column:
+                  name: password
+                  value: "123"
+              - column:
+                  name: code
+                  value: "123"
+              - column:
+                  name: photo
+                  value: "Мой компютер/Моя папка/Моё фото.jpg"
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: is_moderator
+                  value: "0"
+              - column:
+                  name: reg_time
+                  value: "18.02.2021"
+              - column:
+                  name: name
+                  value: "Денис"
+              - column:
+                  name: email
+                  value: "denis@mail.ru"
+              - column:
+                  name: password
+                  value: "123"
+              - column:
+                  name: code
+                  value: "123"
+              - column:
+                  name: photo
+                  value: "Мой компютер/Моя папка/Моё фото.jpg"
+      rollback:
+        - delete:
+            tableName: users
+            where: username in ('admin', 'guest')
+  - changeSet:
+      id: 00003
+      author: NikitaPerevozchikov
+      comment: "Create table posts"
+      changes:
+        - insert:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_active
+                  value: "1"
+              - column:
+                  name: moderator_id
+                  value: "1"
+              - column:
+                  name: user_id
+                  value: "1"
+              - column:
+                  name: time
+                  value: "2021-01-15 00:00:00.000"
+              - column:
+                  name: title
+                  value: "Пост №1"
+              - column:
+                  name: text
+                  value: "Текст поста №1 #Java"
+              - column:
+                  name: view_count
+                  value: "0"
+        - insert:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_active
+                  value: "1"
+              - column:
+                  name: moderator_id
+                  value: "1"
+              - column:
+                  name: user_id
+                  value: "2"
+              - column:
+                  name: time
+                  value: "2021-01-14 00:00:00.000"
+              - column:
+                  name: title
+                  value: "Пост №2"
+              - column:
+                  name: text
+                  value: "Текст поста №2 #Java"
+              - column:
+                  name: view_count
+                  value: "0"
+        - insert:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_active
+                  value: "1"
+              - column:
+                  name: moderator_id
+                  value: "1"
+              - column:
+                  name: user_id
+                  value: "3"
+              - column:
+                  name: time
+                  value: "2021-01-13 00:00:00.000"
+              - column:
+                  name: title
+                  value: "Пост №3"
+              - column:
+                  name: text
+                  value: "Текст поста №3 #Java"
+              - column:
+                  name: view_count
+                  value: "0"
+      rollback:
+        - delete:
+            tableName: posts
+            where: username in ('admin', 'guest')
+  - changeSet:
+      id: 00004
+      author: NikitaPerevozchikov
+      comment: "Create table post_votes"
+      changes:
+        - insert:
+            tableName: post_votes
+            columns:
+              - column:
+                  name: user_id
+                  value: "1"
+              - column:
+                  name: post_id
+                  value: "3"
+              - column:
+                  name: time
+                  value: "15.10.2020"
+              - column:
+                  name: value
+                  value: "1"
+        - insert:
+            tableName: post_votes
+            columns:
+              - column:
+                  name: user_id
+                  value: "2"
+              - column:
+                  name: post_id
+                  value: "1"
+              - column:
+                  name: time
+                  value: "16.10.2020"
+              - column:
+                  name: value
+                  value: "-1"
+        - insert:
+            tableName: post_votes
+            columns:
+              - column:
+                  name: user_id
+                  value: "3"
+              - column:
+                  name: post_id
+                  value: "2"
+              - column:
+                  name: time
+                  value: "17.10.2020"
+              - column:
+                  name: value
+                  value: "-1"
+      rollback:
+        - delete:
+          tableName: post_votes
+          where: username in ('admin', 'guest')
+  - changeSet:
+      id: 00005
+      author: NikitaPerevozchikov
+      comment: "Create table tags"
+      changes:
+        - insert:
+            tableName: tags
+            columns:
+              - column:
+                  name: name
+                  value: "Java"
+        - insert:
+            tableName: tags
+            columns:
+              - column:
+                  name: name
+                  value: "Spring"
+        - insert:
+            tableName: tags
+            columns:
+              - column:
+                  name: name
+                  value: "Hibernate"
+        - insert:
+            tableName: tags
+            columns:
+              - column:
+                  name: name
+                  value: "Hadoop"
+      rollback:
+        - delete:
+            tableName: posts
+            where: username in ('admin', 'guest')
+  - changeSet:
+      id: 00006
+      author: NikitaPerevozchikov
+      comment: "Create table tag2post"
+      changes:
+        - insert:
+            tableName: tag2post
+            columns:
+              - column:
+                  name: post_id
+                  value: "1"
+              - column:
+                  name: tag_id
+                  value: "1"
+        - insert:
+            tableName: tag2post
+            columns:
+              - column:
+                  name: post_id
+                  value: "2"
+              - column:
+                  name: tag_id
+                  value: "1"
+        - insert:
+            tableName: tag2post
+            columns:
+              - column:
+                  name: post_id
+                  value: "3"
+              - column:
+                  name: tag_id
+                  value: "3"
+        - insert:
+            tableName: tag2post
+            columns:
+              - column:
+                  name: post_id
+                  value: "3"
+              - column:
+                  name: tag_id
+                  value: "3"
+        - insert:
+            tableName: tag2post
+            columns:
+              - column:
+                  name: post_id
+                  value: "1"
+              - column:
+                  name: tag_id
+                  value: "2"
+    rollback:
+      - delete:
+          tableName: secret_code
+          where: username in ('admin', 'guest')
+
+      - changeSet:
+          id: 00009
+          author: NikitaPerevozchikov
+          comment: "Create table global_settings"
+          changes:
+            - insert:
+                tableName: global_settings
+                columns:
+                  - column:
+                      name: code
+                      value: "MULTIUSER_MODE"
+                  - column:
+                      name: name
+                      value: "Многопользовательский режим"
+                  - column:
+                      name: value
+                      value: "YES"
+            - insert:
+                tableName: global_settings
+                columns:
+                  - column:
+                      name: code
+                      value: "POST_PREMODERATION"
+                  - column:
+                      name: name
+                      value: "Премодерация постов"
+                  - column:
+                      name: value
+                      value: "NO"
+            - insert:
+                tableName: global_settings
+                columns:
+                  - column:
+                      name: code
+                      value: "STATISTICS_IS_PUBLIC"
+                  - column:
+                      name: name
+                      value: "Показывать всем статистику блога"
+                  - column:
+                      name: value
+                      value: "YES"
+          rollback:
+            - delete:
+                tableName: global_settings
+                where: username in ('admin', 'guest')
