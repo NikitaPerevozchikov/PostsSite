@@ -54,7 +54,7 @@ public class Post {
   private String text;
 
   @Column(name = "view_count", nullable = false, columnDefinition = "INT")
-  private int view_count;
+  private int viewCount;
 
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<PostVote> postVotes;

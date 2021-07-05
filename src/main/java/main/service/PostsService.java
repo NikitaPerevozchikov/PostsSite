@@ -10,6 +10,8 @@ import main.api.response.PostsResponse.Post.User;
 import main.models.Post;
 import main.repository.PostsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,39 +33,40 @@ public class PostsService {
     }
 
     PostsResponse response = new PostsResponse();
-    List<Post> posts = new ArrayList<>();
-    postsRepository.findAll().forEach(posts::add);
-    response.setCount(posts.size());
+
+    Page<Post> postPage = postsRepository.findAll(PageRequest.of(offset, limit));
+    response.setCount((int) postPage.getTotalElements());
+
     List<PostsResponse.Post> postList = new ArrayList<>();
-    posts
-        .subList(offset, Math.min(offset + limit, posts.size()))
-        .forEach(
-            e -> {
-              PostsResponse.Post post = new PostsResponse.Post();
-              post.setId(e.getId());
-              post.setTimestamp(e.getTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli());
-              post.setUser(new User(e.getUser().getId(), e.getUser().getName()));
-              post.setTitle(e.getTitle());
-              post.setAnnounce(
-                  e.getText().length() > 150 ? e.getText().substring(150) : e.getText() + "...");
+    postPage.forEach(e -> {
+      PostsResponse.Post post = new PostsResponse.Post();
+      post.setId(e.getId());
+      post.setTimestamp(e.getTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli());
+      post.setUser(new User(e.getUser().getId(), e.getUser().getName()));
+      post.setTitle(e.getTitle());
+      post.setAnnounce(
+          e.getText().length() > 150 ? e.getText().substring(150) : e.getText() + "...");
 
-              AtomicInteger likeCount = new AtomicInteger();
-              AtomicInteger dislikeCount = new AtomicInteger();
-              e.getPostVotes()
-                  .forEach(
-                      c -> {
-                        if (c.isValue()) {
-                          likeCount.getAndIncrement();
-                        } else {
-                          dislikeCount.getAndIncrement();
-                        }
-                      });
+      AtomicInteger likeCount = new AtomicInteger();
+      AtomicInteger dislikeCount = new AtomicInteger();
 
-              post.setLikeCount(likeCount.get());
-              post.setDislikeCount(dislikeCount.get());
-              post.setViewCount(e.getView_count());
-              postList.add(post);
-            });
+      e.getPostVotes()
+          .forEach(
+
+              c -> {
+
+                if (c.isValue()) {
+                  likeCount.getAndIncrement();
+                } else {
+                  dislikeCount.getAndIncrement();
+                }
+              });
+      post.setLikeCount(likeCount.get());
+      post.setDislikeCount(dislikeCount.get());
+      post.setViewCount(e.getViewCount());
+      postList.add(post);
+    });
+
     switch (mode) {
       case "recent": {
         postList.sort(Comparator.comparing(PostsResponse.Post::getTimestamp));

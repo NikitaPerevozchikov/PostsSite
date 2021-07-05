@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,7 +32,7 @@ public class PostsResponse {
 
     @Getter
     @Setter
-    public static class User {
+    public static class User extends Pageable {
 
       private int id;
       private String name;
