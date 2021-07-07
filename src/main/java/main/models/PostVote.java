@@ -37,6 +37,6 @@ public class PostVote {
   @Column(nullable = false, columnDefinition = "DATETIME")
   private LocalDateTime time;
 
-  @Column(nullable = false, columnDefinition = "TINYINT(1)")
+  @Column(nullable = false, columnDefinition = "TINYINT")
   private boolean value;
 }

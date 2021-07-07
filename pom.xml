@@ -27,6 +27,7 @@
     <version>2.5.0</version>
   </parent>
   <dependencies>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -58,6 +59,5 @@
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
     </dependency>
-
   </dependencies>
 </project>

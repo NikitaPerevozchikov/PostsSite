@@ -2,6 +2,7 @@ package main.controllers;
 
 import main.api.response.PostsResponse;
 import main.service.PostsService;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +24,5 @@ public class ApiPostController {
       @RequestParam("mode") String mode) {
     return postsService.getGroupPosts(offset, limit, mode);
   }
-
-
+  
 }

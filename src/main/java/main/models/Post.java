@@ -44,7 +44,7 @@ public class Post {
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
 
-  @Column(nullable = false, columnDefinition = "DATETIME")
+  @Column(name = "time", nullable = false, columnDefinition = "DATETIME")
   private LocalDateTime time;
 
   @Column(nullable = false, columnDefinition = "VARCHAR(255)")
@@ -59,6 +59,15 @@ public class Post {
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<PostVote> postVotes;
 
+  @Column(name = "like_count", columnDefinition = "INT")
+  private int likeCount;
+
+  @Column(name = "dislike_count", columnDefinition = "INT")
+  private int dislikeCount;
+
+  @Column(name = "comment_count", columnDefinition = "INT")
+  private int commentCount;
+
 
   @ManyToMany()
   @JoinTable(name = "tag2post",
@@ -68,6 +77,7 @@ public class Post {
 
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<PostComment> comments;
+
 }
 
 

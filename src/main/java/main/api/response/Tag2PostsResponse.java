@@ -14,6 +14,6 @@ public class Tag2PostsResponse {
 
     String getName();
 
-    int getWeight();
+    double getWeight();
   }
 }

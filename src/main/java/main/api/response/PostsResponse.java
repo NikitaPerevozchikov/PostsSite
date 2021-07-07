@@ -2,6 +2,11 @@ package main.api.response;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
@@ -17,7 +22,6 @@ public class PostsResponse {
 
   @Getter
   @Setter
-
   public static class Post {
 
     private int id;
@@ -32,7 +36,7 @@ public class PostsResponse {
 
     @Getter
     @Setter
-    public static class User extends Pageable {
+    public static class User {
 
       private int id;
       private String name;
