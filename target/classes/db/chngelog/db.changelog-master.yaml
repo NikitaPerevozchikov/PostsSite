@@ -408,6 +408,60 @@ databaseChangeLog:
               - column:
                   name: view_count
                   value: "0"
+        - insert:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_active
+                  value: "1"
+              - column:
+                  name: moderator_id
+                  value: "1"
+              - column:
+                  name: moderation_status
+                  value: "ACCEPTED"
+              - column:
+                  name: user_id
+                  value: "1"
+              - column:
+                  name: time
+                  value: "2020-01-13 00:00:00.000"
+              - column:
+                  name: title
+                  value: "Пост №4"
+              - column:
+                  name: text
+                  value: "Текст поста №4 #Java"
+              - column:
+                  name: view_count
+                  value: "1"
+        - insert:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_active
+                  value: "1"
+              - column:
+                  name: moderator_id
+                  value: "1"
+              - column:
+                  name: moderation_status
+                  value: "ACCEPTED"
+              - column:
+                  name: user_id
+                  value: "1"
+              - column:
+                  name: time
+                  value: "2020-01-13 00:00:00.000"
+              - column:
+                  name: title
+                  value: "Пост №5"
+              - column:
+                  name: text
+                  value: "Текст поста №5 #Java"
+              - column:
+                  name: view_count
+                  value: "1"
       rollback:
         - delete:
             tableName: posts

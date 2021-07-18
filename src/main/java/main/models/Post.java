@@ -32,15 +32,27 @@ public class Post {
   @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT(1)")
   private boolean isActive;
 
-  @Column(name = "moderation_status", nullable = false, columnDefinition = "ENUM('NEW','ACCEPTED','DECLINED') default 'NEW'")
+  @Column(
+      name = "moderation_status",
+      nullable = false,
+      columnDefinition = "ENUM('NEW','ACCEPTED','DECLINED') default 'NEW'")
   @Enumerated(EnumType.STRING)
   private ModerationStatus moderationStatus;
 
-  @JoinColumn(name = "moderator_id", insertable = false, updatable = false, columnDefinition = "INT")
+  @JoinColumn(
+      name = "moderator_id",
+      insertable = false,
+      updatable = false,
+      columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private User moderator;
 
-  @JoinColumn(name = "user_id", insertable = false, updatable = false, nullable = false, columnDefinition = "INT")
+  @JoinColumn(
+      name = "user_id",
+      insertable = false,
+      updatable = false,
+      nullable = false,
+      columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
 
@@ -59,25 +71,13 @@ public class Post {
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<PostVote> postVotes;
 
-  @Column(name = "like_count", columnDefinition = "INT")
-  private int likeCount;
-
-  @Column(name = "dislike_count", columnDefinition = "INT")
-  private int dislikeCount;
-
-  @Column(name = "comment_count", columnDefinition = "INT")
-  private int commentCount;
-
-
   @ManyToMany()
-  @JoinTable(name = "tag2post",
+  @JoinTable(
+      name = "tag2post",
       joinColumns = {@JoinColumn(name = "tag_id")},
       inverseJoinColumns = {@JoinColumn(name = "post_id")})
   private List<Post> tags;
 
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<PostComment> comments;
-
 }
-
-
