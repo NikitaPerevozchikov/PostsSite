@@ -1,45 +1,43 @@
 package main.service;
 
-import java.text.SimpleDateFormat;
-import java.time.Year;
+import java.security.Principal;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import main.api.response.calendarResponse.CalendarResponse;
-import main.api.response.postResponse.PostResponse;
-import main.api.response.postResponse.PostResponse.Comment;
-import main.api.response.postResponse.PostResponse.Comment.UserComment;
-import main.api.response.postResponse.PostResponse.UserPost;
-import main.api.response.postResponse.PostResponseEmp;
-import main.api.response.postsResponse.PostsResponse;
-import main.api.response.postsResponse.PostsResponse.Post.User;
-import main.api.response.postsResponse.PostsResponseEmp;
-import main.repository.PostCommentsRepository;
-import main.repository.PostVotesRepository;
+import main.api.response.PostResponse;
+import main.api.response.PostResponse.Comment;
+import main.api.response.PostResponse.Comment.UserComment;
+import main.api.response.PostResponse.UserPost;
+import main.api.response.PostsResponse;
+import main.api.response.PostsResponse.Post.User;
+import main.models.Post;
+import main.models.Tag;
 import main.repository.PostsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import main.repository.UsersRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class PostsService {
 
-  @Autowired
-  PostsRepository postsRepository;
-  @Autowired
-  PostVotesRepository postVotesRepository;
-  @Autowired
-  PostCommentsRepository postCommentsRepository;
-  SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+  private final PostsRepository postsRepository;
+  private final UsersRepository usersRepository;
+
+  public PostsService(PostsRepository postsRepository, UsersRepository usersRepository) {
+    this.postsRepository = postsRepository;
+    this.usersRepository = usersRepository;
+  }
 
   public PostsResponse getGroupPosts(Integer offset, Integer limit, String mode) {
 
@@ -53,59 +51,46 @@ public class PostsService {
       mode = "recent";
     }
     PostsResponse response = new PostsResponse();
+    Page<Post> posts;
 
-    Sort sort;
     switch (mode) {
-      case "popular": {
-        sort = Sort.by("comments").descending();
-        break;
-      }
-      case "best": {
-        sort = Sort.by("likes").descending();
-        break;
-      }
-      case "early": {
-        sort = Sort.by("time");
-        break;
-      }
+      case "popular":
+        {
+          posts =
+              postsRepository.findGroupByComments(PageRequest.of(offset, limit, Sort.unsorted()));
+          break;
+        }
+      case "best":
+        {
+          posts = postsRepository.findGroupByLikes(PageRequest.of(offset, limit, Sort.unsorted()));
+          break;
+        }
+      case "early":
+        {
+          posts = postsRepository.findGroupById(PageRequest.of(offset, limit, Sort.by("time")));
+          break;
+        }
       default:
-        sort = Sort.by("time").descending();
+        posts =
+            postsRepository.findGroupById(
+                PageRequest.of(offset, limit, Sort.by("time").descending()));
     }
-    Page<PostsResponseEmp> posts =
-        postsRepository.findGroupById(PageRequest.of(offset, limit, sort));
+
     competeResponse(response, posts);
     return response;
   }
 
-  public PostsResponse search(int offset, int limit, String query) {
+  public PostsResponse getPostsByQuery(int offset, int limit, String query) {
     if (query.trim().isEmpty()) {
       return getGroupPosts(offset, limit, "recent");
     }
-    Page<PostsResponseEmp> posts = postsRepository.search(query, PageRequest.of(offset, limit));
+    Page<Post> posts = postsRepository.findPostsByQuery(query, PageRequest.of(offset, limit));
     PostsResponse response = new PostsResponse();
     competeResponse(response, posts);
     return response;
   }
 
-  public CalendarResponse calendar(String year) {
-    Set<String> years = new HashSet<>();
-    Map<String, Integer> posts = new HashMap<>();
-    CalendarResponse response = new CalendarResponse();
-    postsRepository
-        .calendar()
-        .forEach(
-            e -> {
-              years.add(e.getYear());
-              if (e.getYear().equals(year == null ? Year.now().toString() : year)) {
-                posts.put(format.format(e.getDate()), e.getCount());
-              }
-            });
-    response.setYears(years);
-    response.setPosts(posts);
-    return response;
-  }
-
-  public PostsResponse getGroupDate(Integer offset, Integer limit, String date) {
+  public PostsResponse getGroupByDate(Integer offset, Integer limit, String date) {
 
     if (offset == null) {
       offset = 0;
@@ -115,13 +100,12 @@ public class PostsService {
     }
 
     PostsResponse response = new PostsResponse();
-    Page<PostsResponseEmp> posts =
-        postsRepository.findGroupByDate(date, PageRequest.of(offset, limit, Sort.by("time")));
+    Page<Post> posts = postsRepository.findGroupByDate(date, PageRequest.of(offset, limit));
     competeResponse(response, posts);
     return response;
   }
 
-  public PostsResponse getGroupTag(Integer offset, Integer limit, String tag) {
+  public PostsResponse getGroupByTag(Integer offset, Integer limit, String tag) {
 
     if (offset == null) {
       offset = 0;
@@ -131,47 +115,100 @@ public class PostsService {
     }
 
     PostsResponse response = new PostsResponse();
-    Page<PostsResponseEmp> posts =
-        postsRepository.findGroupByTag(tag, PageRequest.of(offset, limit, Sort.by("time")));
+    Page<Post> posts = postsRepository.findGroupByTag(tag, PageRequest.of(offset, limit));
     competeResponse(response, posts);
     return response;
   }
 
-  public ResponseEntity<?> post(int id) {
+  public ResponseEntity<?> getPost(int id) {
+    postsRepository.incrementView(id);
     PostResponse response = new PostResponse();
-    PostResponseEmp post = postsRepository.post(id);
+    Optional<Post> optionalPost = postsRepository.findById(id);
 
-    if (post.getId() == null) {
-      return new ResponseEntity<> (HttpStatus.NOT_FOUND);
+    if (optionalPost.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    } else {
+      Post post = optionalPost.get();
+      response.setId(post.getId());
+      response.setTimestamp(
+          post.getTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() / 1000);
+      response.setActive(true);
+      response.setUser(new UserPost(post.getUser().getId(), post.getUser().getName()));
+      response.setTitle(post.getTitle());
+      response.setText(post.getText());
+      AtomicInteger like = new AtomicInteger();
+      AtomicInteger disLike = new AtomicInteger();
+      post.getPostVotes()
+          .forEach(
+              v -> {
+                if (v.isValue()) {
+                  like.getAndIncrement();
+                } else {
+                  disLike.getAndIncrement();
+                }
+              });
+      response.setLikeCount(like.get());
+      response.setDislikeCount(disLike.get());
+      response.setViewCount(post.getViewCount());
+      response.setComments(
+          post.getComments().stream()
+              .map(
+                  e ->
+                      new Comment(
+                          e.getId(),
+                          e.getTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() / 1000,
+                          e.getText(),
+                          new UserComment(
+                              e.getUser().getId(), e.getUser().getName(), e.getUser().getPhoto())))
+              .collect(Collectors.toList()));
+
+      response.setTags(post.getTags().stream().map(Tag::getName).toArray(String[]::new));
+
+      return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    List<Comment> comments = postCommentsRepository.getCommentsByPostId(id).stream()
-        .map(e -> new Comment(
-            e.getId(),
-            e.getTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() / 1000,
-            e.getText(),
-            new UserComment(e.getUserId(), e.getUserName(), e.getUSerPhoto())))
-        .collect(Collectors.toList());
-
-
-
-    response.setId(post.getId());
-    response
-        .setTimestamp(post.getTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() / 1000);
-    response.setActive(true);
-    response.setUser(new UserPost(post.getUserId(), post.getUserName()));
-    response.setTitle(post.getTitle());
-    response.setText(post.getText());
-    response.setLikeCount(post.getLikes());
-    response.setDislikeCount(post.getDislikes());
-    response.setViewCount(post.getViews());
-    response.setComments(comments);
-    response.setTags(post.getTags());
-
-    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
-  private void competeResponse(PostsResponse response, Page<PostsResponseEmp> posts) {
+  public PostsResponse getMyPosts(
+      Integer offset, Integer limit, String status, Principal principal) {
+    int userId = usersRepository.findByEmail(principal.getName()).getId();
+
+    if (offset == null) {
+      offset = 0;
+    }
+    if (limit == null) {
+      limit = 10;
+    }
+    if (status == null) {
+      status = "published";
+    }
+    PostsResponse response = new PostsResponse();
+    Page<Post> posts;
+
+    switch (status) {
+      case "inactive":
+        {
+          posts = postsRepository.findByUserIdInactive(userId, PageRequest.of(offset, limit));
+          break;
+        }
+      case "pending":
+        {
+          posts = postsRepository.findByUserIdPending(userId, PageRequest.of(offset, limit));
+          break;
+        }
+      case "declined":
+        {
+          posts = postsRepository.findByUserIdDeclined(userId, PageRequest.of(offset, limit));
+          break;
+        }
+      default:
+        posts = postsRepository.findByUserIdPublished(userId, PageRequest.of(offset, limit));
+    }
+
+    competeResponse(response, posts);
+    return response;
+  }
+
+  private void competeResponse(PostsResponse response, Page<Post> posts) {
     response.setCount(posts.getNumberOfElements());
     List<PostsResponse.Post> postList = new ArrayList<>();
     posts.forEach(
@@ -179,14 +216,29 @@ public class PostsService {
           PostsResponse.Post post = new PostsResponse.Post();
           post.setId(e.getId());
           post.setTimestamp(e.getTime().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() / 1000);
-          post.setUser(new User(e.getUserId(), e.getUserName()));
+          post.setUser(new User(e.getUser().getId(), e.getUser().getName()));
           post.setTitle(e.getTitle());
+          String announce = Jsoup.clean(e.getText(), Whitelist.none());
           post.setAnnounce(
-              e.getText().length() > 150 ? e.getText().substring(150) : e.getText() + "...");
-          post.setLikeCount(e.getLikes());
-          post.setDislikeCount(e.getDislikes());
-          post.setCommentCount(e.getComments());
-          post.setViewCount(e.getViews());
+              (announce.length() > 150 ? announce.substring(150) : e.getText()) + "...");
+
+          AtomicInteger like = new AtomicInteger();
+          AtomicInteger disLike = new AtomicInteger();
+
+          e.getPostVotes()
+              .forEach(
+                  v -> {
+                    if (v.isValue()) {
+                      like.getAndIncrement();
+                    } else {
+                      disLike.getAndIncrement();
+                    }
+                  });
+
+          post.setLikeCount(like.get());
+          post.setDislikeCount(disLike.get());
+          post.setCommentCount(e.getComments().size());
+          post.setViewCount(e.getViewCount());
           postList.add(post);
         });
     response.setPosts(postList);

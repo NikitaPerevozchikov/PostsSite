@@ -318,6 +318,31 @@ databaseChangeLog:
               - column:
                   name: photo
                   value: "Мой компютер/Моя папка/Моё фото.jpg"
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: is_moderator
+                  value: "0"
+              - column:
+                  name: reg_time
+                  value: "20.02.2021"
+              - column:
+                  name: name
+                  value: "Никита"
+              - column:
+                  name: email
+                  value: "123@123.ru"
+              - column:
+                  name: password
+                  value: "$2y$12$3nkamPFRCUa5RASa1cIF3OqMqkL8BfR6TzZ91wq5kUlKGpJzrqgni"
+              - column:
+                  name: code
+                  value: "sdfsdfsdf"
+              - column:
+                  name: photo
+                  value: "Мой компютер/Моя папка/Моё фото.jpg"
+
       rollback:
         - delete:
             tableName: users

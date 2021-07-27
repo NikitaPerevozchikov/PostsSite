@@ -1,4 +1,4 @@
-package main.api.response.postResponse;
+package main.api.response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
-
 public class PostResponse {
 
   boolean active;
@@ -32,7 +31,6 @@ public class PostResponse {
 
     private int id;
     private String name;
-
   }
 
   @Setter
@@ -53,7 +51,6 @@ public class PostResponse {
       private int id;
       private String name;
       private String photo;
-
     }
   }
 }

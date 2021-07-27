@@ -38,10 +38,15 @@ public class User {
 
   @Column(nullable = false, columnDefinition = "VARCHAR(255)")
   private String password;
+
   @Column(columnDefinition = "VARCHAR(255)")
   private String code;
   @Column(columnDefinition = "TEXT")
   private String photo;
+
+  public Role getRole () {
+    return isModerator ? Role.MODERATOR : Role.USER;
+  }
 
   @JsonIgnore
   @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL)

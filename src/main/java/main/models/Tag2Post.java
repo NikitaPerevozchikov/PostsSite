@@ -21,11 +21,21 @@ public class Tag2Post {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @JoinColumn(name = "post_id", insertable = false, updatable = false, nullable = false, columnDefinition = "INT")
+  @JoinColumn(
+      name = "post_id",
+      insertable = false,
+      updatable = false,
+      nullable = false,
+      columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private Post post;
 
-  @JoinColumn(name = "tag_id", insertable = false, updatable = false, nullable = false, columnDefinition = "INT")
+  @JoinColumn(
+      name = "tag_id",
+      insertable = false,
+      updatable = false,
+      nullable = false,
+      columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private Tag tag;
 }

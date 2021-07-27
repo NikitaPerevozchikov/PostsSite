@@ -1,4 +1,4 @@
-package main.api.response.postsResponse;
+package main.api.response;
 
 import java.util.List;
 import lombok.Getter;

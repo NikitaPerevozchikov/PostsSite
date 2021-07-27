@@ -1,15 +1,14 @@
 package main.service;
 
-import lombok.Getter;
-import lombok.Setter;
 import main.repository.TagRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Getter
-@Setter
+@Service
 public class TagsService {
 
-  @Autowired
-  TagRepository tagRepository;
+  private final TagRepository tagRepository;
 
+  public TagsService(TagRepository tagRepository) {
+    this.tagRepository = tagRepository;
+  }
 }

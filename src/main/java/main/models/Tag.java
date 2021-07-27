@@ -2,6 +2,7 @@ package main.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,5 +34,8 @@ public class Tag {
       joinColumns = {@JoinColumn(name = "post_id")},
       inverseJoinColumns = {@JoinColumn(name = "tag_id")})
   private List<Post> posts;
+
+  @ManyToMany(mappedBy = "tags")
+  private Set<Post> roles;
 
 }

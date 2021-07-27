@@ -2,6 +2,7 @@ package main.models;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -76,7 +77,7 @@ public class Post {
       name = "tag2post",
       joinColumns = {@JoinColumn(name = "tag_id")},
       inverseJoinColumns = {@JoinColumn(name = "post_id")})
-  private List<Post> tags;
+  private Set<Tag> tags;
 
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<PostComment> comments;

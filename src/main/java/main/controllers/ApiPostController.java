@@ -1,11 +1,7 @@
 package main.controllers;
 
-import java.util.List;
-import main.api.response.calendarResponse.CalendarResponse;
-import main.api.response.postResponse.PostResponse;
-import main.api.response.postResponse.PostResponseEmp;
-import main.api.response.postsResponse.PostsResponse;
-import main.models.Post;
+import java.security.Principal;
+import main.api.response.PostsResponse;
 import main.service.PostsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,31 +30,40 @@ public class ApiPostController {
   }
 
   @GetMapping("/search")
-  public PostsResponse search(
+  public PostsResponse getPostsByQuery(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("query") String query) {
-    return postsService.search(offset, limit, query);
+    return postsService.getPostsByQuery(offset, limit, query);
   }
+
   @GetMapping("/byDate")
-  public PostsResponse groupByDate(
+  public PostsResponse getGroupByDate(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("date") String date) {
-    return postsService.getGroupDate(offset, limit, date);
+    return postsService.getGroupByDate(offset, limit, date);
   }
 
   @GetMapping("/byTag")
-  public PostsResponse groupByTag(
+  public PostsResponse getGroupByTag(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("tag") String tag) {
-    return postsService.getGroupTag(offset, limit, tag);
+    return postsService.getGroupByTag(offset, limit, tag);
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<?> getPost(@PathVariable int id) {
-    return postsService.post(id);
+    return postsService.getPost(id);
   }
 
+  @GetMapping("/my")
+  public PostsResponse getMyPosts(
+      @RequestParam("offset") int offset,
+      @RequestParam("limit") int limit,
+      @RequestParam("status") String status,
+      Principal principal) {
+    return postsService.getMyPosts(offset, limit, status, principal);
+  }
 }

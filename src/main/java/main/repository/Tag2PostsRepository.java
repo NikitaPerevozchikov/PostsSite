@@ -37,5 +37,4 @@ public interface Tag2PostsRepository extends CrudRepository<Tag2Post, Integer> {
               + ";",
       nativeQuery = true)
   List<Tag2Posts> getGroupByTags(@Param("query") String query);
-
 }

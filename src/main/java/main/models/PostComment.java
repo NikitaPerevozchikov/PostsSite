@@ -1,6 +1,5 @@
 package main.models;
 
-import com.sun.istack.NotNull;
 import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,13 +24,23 @@ public class PostComment {
   private int id;
 
   @Column(name = "parent_id", columnDefinition = "INT")
-  private int parentId;
+  private Integer parentId;
 
-  @JoinColumn(name = "post_id", insertable = false, updatable = false, nullable = false, columnDefinition = "INT")
+  @JoinColumn(
+      name = "post_id",
+      insertable = false,
+      updatable = false,
+      nullable = false,
+      columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private Post post;
 
-  @JoinColumn(name = "user_id", insertable = false, updatable = false, nullable = false, columnDefinition = "INT")
+  @JoinColumn(
+      name = "user_id",
+      insertable = false,
+      updatable = false,
+      nullable = false,
+      columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
 
@@ -40,6 +49,4 @@ public class PostComment {
 
   @Column(nullable = false, columnDefinition = "TEXT")
   private String text;
-
-
 }

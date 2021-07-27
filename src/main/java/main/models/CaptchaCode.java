@@ -1,6 +1,5 @@
 package main.models;
 
-import com.sun.istack.NotNull;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,9 +24,8 @@ public class CaptchaCode {
   private LocalDateTime time;
 
   @Column(nullable = false, columnDefinition = "TINYTEXT")
-  private int code;
+  private String code;
 
   @Column(name = "secret_code", nullable = false, columnDefinition = "TINYTEXT")
-  private int secretCode;
-
+  private String secretCode;
 }

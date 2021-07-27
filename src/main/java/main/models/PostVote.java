@@ -1,6 +1,5 @@
 package main.models;
 
-import com.sun.istack.NotNull;
 import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -24,12 +23,20 @@ public class PostVote {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @JoinColumn(name = "user_id", insertable = false, updatable = false, nullable = false,
+  @JoinColumn(
+      name = "user_id",
+      insertable = false,
+      updatable = false,
+      nullable = false,
       columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
 
-  @JoinColumn(name = "post_id", insertable = false, updatable = false, nullable = false,
+  @JoinColumn(
+      name = "post_id",
+      insertable = false,
+      updatable = false,
+      nullable = false,
       columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private Post post;

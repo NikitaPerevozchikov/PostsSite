@@ -1,11 +1,10 @@
 package main.controllers;
 
-import java.util.List;
 import java.util.Map;
 import main.api.response.InitResponse;
 import main.api.response.Tag2PostsResponse;
 import main.api.response.calendarResponse.CalendarResponse;
-import main.api.response.calendarResponse.CalendarResponseEmp;
+import main.service.CalendarService;
 import main.service.GlobalSettingsService;
 import main.service.PostsService;
 import main.service.Tag2PostsService;
@@ -22,16 +21,19 @@ public class ApiGeneralController {
   private GlobalSettingsService globalSettingsService;
   private Tag2PostsService tag2PostsService;
   private PostsService postsService;
+  private CalendarService calendarService;
 
   public ApiGeneralController(
       InitResponse initResponse,
       GlobalSettingsService globalSettingsService,
       Tag2PostsService tag2PostsService,
-      PostsService postsService) {
+      PostsService postsService,
+      CalendarService calendarService) {
     this.initResponse = initResponse;
     this.globalSettingsService = globalSettingsService;
     this.tag2PostsService = tag2PostsService;
     this.postsService = postsService;
+    this.calendarService = calendarService;
   }
 
   @GetMapping("/init")
@@ -51,9 +53,7 @@ public class ApiGeneralController {
   }
 
   @GetMapping("/calendar")
-  public CalendarResponse calendar(
-      @RequestParam(name = "year", required = false) String year) {
-    return postsService.calendar(year);
+  public CalendarResponse getPostsByDate(@RequestParam(name = "year", required = false) String year) {
+    return calendarService.getPostsByDate(year);
   }
-
 }
