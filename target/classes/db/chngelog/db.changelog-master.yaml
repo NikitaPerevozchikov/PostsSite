@@ -260,10 +260,10 @@ databaseChangeLog:
                   value: "Николай"
               - column:
                   name: email
-                  value: "nikolai@mail.ru"
+                  value: "1234@123.ru"
               - column:
                   name: password
-                  value: "123"
+                  value: "$2y$12$3nkamPFRCUa5RASa1cIF3OqMqkL8BfR6TzZ91wq5kUlKGpJzrqgni"
               - column:
                   name: code
                   value: "123"
@@ -342,7 +342,6 @@ databaseChangeLog:
               - column:
                   name: photo
                   value: "Мой компютер/Моя папка/Моё фото.jpg"
-
       rollback:
         - delete:
             tableName: users
@@ -457,6 +456,57 @@ databaseChangeLog:
               - column:
                   name: text
                   value: "Текст поста №4 #Java"
+              - column:
+                  name: view_count
+                  value: "1"
+        - insert:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_active
+                  value: "1"
+              - column:
+                  name: moderator_id
+                  value: "1"
+              - column:
+                  name: moderation_status
+                  value: "DECLINED"
+              - column:
+                  name: user_id
+                  value: "1"
+              - column:
+                  name: time
+                  value: "2020-01-13 00:00:00.000"
+              - column:
+                  name: title
+                  value: "Пост №5"
+              - column:
+                  name: text
+                  value: "Текст поста №5 #Java"
+              - column:
+                  name: view_count
+                  value: "1"
+        - insert:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_active
+                  value: "1"
+              - column:
+                  name: moderation_status
+                  value: "NEW"
+              - column:
+                  name: user_id
+                  value: "4"
+              - column:
+                  name: time
+                  value: "2020-01-13 00:00:00.000"
+              - column:
+                  name: title
+                  value: "Пост №6"
+              - column:
+                  name: text
+                  value: "Текст поста №6 #Java"
               - column:
                   name: view_count
                   value: "1"

@@ -51,8 +51,6 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.20</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -105,6 +103,18 @@
       <artifactId>spring-security-core</artifactId>
       <version>5.5.1</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>net.coobird</groupId>
+      <artifactId>thumbnailator</artifactId>
+      <version>0.4.11</version>
+    </dependency>
+
 
   </dependencies>
 </project>

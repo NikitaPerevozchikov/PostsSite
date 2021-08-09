@@ -17,11 +17,6 @@ public class AuthorizationResponse {
   @JsonProperty("user")
   private UserResponse userResponse;
 
-  @Override
-  public String toString() {
-    return "AuthorizationResponse{" + "result=" + result + ", user=" + userResponse + '}';
-  }
-
   @Getter
   @Setter
   public static class UserResponse {

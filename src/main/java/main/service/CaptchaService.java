@@ -4,9 +4,13 @@ import com.github.cage.Cage;
 import com.github.cage.GCage;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Random;
 import main.api.response.CaptchaResponse;
 import main.models.CaptchaCode;
 import main.repository.CaptchaCodesRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +20,12 @@ public class CaptchaService {
 
   private final CaptchaCodesRepository captchaCodesRepository;
 
+  @Autowired
   public CaptchaService(CaptchaCodesRepository captchaCodesRepository) {
     this.captchaCodesRepository = captchaCodesRepository;
   }
 
-  public CaptchaResponse createCaptcha() {
+  public ResponseEntity<?> addCaptcha() {
     Cage cage = new GCage();
     String textPage = cage.getTokenGenerator().next();
     byte[] fileContent = cage.draw(textPage);
@@ -28,8 +33,8 @@ public class CaptchaService {
     String image = "data:image/png;base64, " + encodedString;
 
     StringBuilder secret = new StringBuilder();
-    for (int i = 1; i <= 20; i++) {
-      secret.append(encodedString.charAt((int) (Math.random() * encodedString.length())));
+    for (int i = 1; i <= 45; i++) {
+      secret.append(encodedString.charAt(new Random().nextInt(encodedString.length())));
     }
 
     CaptchaCode captchaCode = new CaptchaCode();
@@ -39,7 +44,8 @@ public class CaptchaService {
 
     captchaCodesRepository.deleteLessTwoHours();
     captchaCodesRepository.save(captchaCode);
+    CaptchaResponse response = new CaptchaResponse(secret.toString(), image);
 
-    return new CaptchaResponse(secret.toString(), image);
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 }

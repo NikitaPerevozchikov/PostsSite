@@ -14,6 +14,5 @@ import org.springframework.stereotype.Component;
 public class CaptchaResponse {
 
   private String secret;
-
   private String image;
 }

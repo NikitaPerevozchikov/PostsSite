@@ -19,6 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "posts")
@@ -31,12 +32,10 @@ public class Post {
   private int id;
 
   @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT(1)")
+  @ColumnDefault(value = "")
   private boolean isActive;
 
-  @Column(
-      name = "moderation_status",
-      nullable = false,
-      columnDefinition = "ENUM('NEW','ACCEPTED','DECLINED') default 'NEW'")
+  @Column(name = "moderation_status", nullable = false)
   @Enumerated(EnumType.STRING)
   private ModerationStatus moderationStatus;
 
@@ -50,7 +49,6 @@ public class Post {
 
   @JoinColumn(
       name = "user_id",
-      insertable = false,
       updatable = false,
       nullable = false,
       columnDefinition = "INT")

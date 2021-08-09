@@ -11,9 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
-@JsonInclude(Include.NON_EMPTY)
-public class PostResponse {
 
-  private boolean result = false;
+@JsonInclude(Include.NON_EMPTY)
+public class CommentResponse {
+
+  private Integer id;
+  private Boolean result;
   private Map<String, String> errors = new HashMap<>();
 }

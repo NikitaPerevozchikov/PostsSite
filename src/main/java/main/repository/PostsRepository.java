@@ -14,6 +14,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostsRepository extends CrudRepository<Post, Integer> {
 
+  @Query(value = "select * from posts where id = :id group by id;", nativeQuery = true)
+  Post findByPostId(@Param("id") int id);
+
+  @Query(
+      value =
+          "select * from posts where user_id = :user_id and is_active = 1 group by id;",
+      nativeQuery = true)
+  List<Post> findByUserIdWActive(@Param("user_id") int id);
+
+  @Query(
+      value = "select * from posts where is_active = 1 group by id;",
+      nativeQuery = true)
+  List<Post> findAllWActive();
+
   @Query(
       value =
           "select * from posts "
@@ -108,38 +122,83 @@ public interface PostsRepository extends CrudRepository<Post, Integer> {
       value =
           "select * from posts "
               + "where is_active = 0 "
-              + "and user_id = :userId "
+              + "and user_id = :user_id "
               + "order by id ",
       nativeQuery = true)
-  Page<Post> findByUserIdInactive(@Param("userId") int userId, Pageable pageable);
+  Page<Post> findByUserIdInactive(@Param("user_id") int userId, Pageable pageable);
 
   @Query(
       value =
           "select * from posts "
               + "where is_active = 1 "
               + "and moderation_status = 'NEW' "
-              + "and user_id = :userId "
+              + "and user_id = :user_id "
               + "order by id ",
       nativeQuery = true)
-  Page<Post> findByUserIdPending(@Param("userId") int userId, Pageable pageable);
+  Page<Post> findByUserIdPending(@Param("user_id") int userId, Pageable pageable);
 
   @Query(
       value =
           "select * from posts "
               + "where is_active = 1 "
               + "and moderation_status = 'DECLINED' "
-              + "and user_id = :userId "
+              + "and user_id = :user_id "
               + "order by id ",
       nativeQuery = true)
-  Page<Post> findByUserIdDeclined(@Param("userId") int userId, Pageable pageable);
+  Page<Post> findByUserIdDeclined(@Param("user_id") int userId, Pageable pageable);
 
   @Query(
       value =
           "select * from posts "
               + "where is_active = 1 "
               + "and moderation_status = 'ACCEPTED' "
-              + "and user_id = :userId "
+              + "and user_id = :user_id "
               + "order by id ",
       nativeQuery = true)
-  Page<Post> findByUserIdPublished(@Param("userId") int userId, Pageable pageable);
+  Page<Post> findByUserIdPublished(@Param("user_id") int userId, Pageable pageable);
+
+  @Query(
+      value =
+          "select * from posts "
+              + "where moderator_id = :user_id and "
+              + "moderation_status = 'DECLINED' and "
+              + "is_active = 1 "
+              + "order by id ",
+      nativeQuery = true)
+  Page<Post> findMyModPostByDeclined(@Param("user_id") int userId, Pageable pageable);
+
+  @Query(
+      value =
+          "select * from posts "
+              + "where moderator_id = :user_id and "
+              + "moderation_status = 'ACCEPTED' and "
+              + "is_active = 1 "
+              + "order by id ",
+      nativeQuery = true)
+  Page<Post> findMyModPostByAccepted(@Param("user_id") int userId, Pageable pageable);
+
+  @Query(
+      value =
+          "select * from posts "
+              + "where moderation_status = 'NEW' and "
+              + "is_active = 1 "
+              + "order by id ",
+      nativeQuery = true)
+  Page<Post> findByModStatusNew(@Param("user_id") int userId, Pageable pageable);
+
+  @Query(
+      value =
+          "update posts set moderation_status = 'ACCEPTED' , moderator_id = :mod_id where id = "
+              + ":post_id ",
+      nativeQuery = true)
+  @Modifying
+  void createModStatusAccept(@Param("post_id") int postId, @Param("mod_id") int modId);
+
+  @Query(
+      value =
+          "update posts set moderation_status = 'DECLINED' , moderator_id = :mod_id where id = "
+              + ":post_id ",
+      nativeQuery = true)
+  @Modifying
+  void createModStatusDecline(@Param("post_id") int postId, @Param("mod_id") int modId);
 }

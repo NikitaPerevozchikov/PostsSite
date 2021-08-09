@@ -28,7 +28,6 @@ public class PostComment {
 
   @JoinColumn(
       name = "post_id",
-      insertable = false,
       updatable = false,
       nullable = false,
       columnDefinition = "INT")
@@ -37,7 +36,6 @@ public class PostComment {
 
   @JoinColumn(
       name = "user_id",
-      insertable = false,
       updatable = false,
       nullable = false,
       columnDefinition = "INT")

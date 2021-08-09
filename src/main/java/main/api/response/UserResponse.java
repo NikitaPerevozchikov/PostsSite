@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @JsonInclude(Include.NON_EMPTY)
-public class PostResponse {
+public class UserResponse {
 
   private boolean result = false;
   private Map<String, String> errors = new HashMap<>();
