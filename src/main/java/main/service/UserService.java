@@ -3,6 +3,9 @@ package main.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -12,9 +15,13 @@ import java.util.TimeZone;
 import main.api.request.PasswordRequest;
 import main.api.request.UserRequest;
 import main.api.response.UserResponse;
+import main.exceptions.ExceptionBadRequest;
+import main.exceptions.ExceptionNotFound;
+import main.exceptions.ExceptionUnauthorized;
 import main.models.CaptchaCode;
 import main.models.User;
 import main.repository.CaptchaCodesRepository;
+import main.repository.GlobalSettingsRepository;
 import main.repository.UsersRepository;
 import main.security.SecurityUser;
 import net.coobird.thumbnailator.Thumbnails;
@@ -35,18 +42,25 @@ public class UserService {
   private final UsersRepository usersRepository;
   private final CaptchaCodesRepository captchaCodesRepository;
   private final PasswordEncoder passwordEncoder;
+  private final GlobalSettingsRepository globalSettingsRepository;
+  private final String abc = "abcdefghijklmnopqrstuvwxyz0123456789";
 
   @Autowired
   public UserService(
       UsersRepository usersRepository,
       CaptchaCodesRepository captchaCodesRepository,
-      PasswordEncoder passwordEncoder) {
+      PasswordEncoder passwordEncoder,
+      GlobalSettingsRepository globalSettingsRepository) {
     this.usersRepository = usersRepository;
     this.captchaCodesRepository = captchaCodesRepository;
     this.passwordEncoder = passwordEncoder;
+    this.globalSettingsRepository = globalSettingsRepository;
   }
 
-  public ResponseEntity<?> addUser(UserRequest request) {
+  public UserResponse addUser(UserRequest request) {
+    if (globalSettingsRepository.findValueByCode("MULTIUSER_MODE").equals("NO")) {
+      throw new ExceptionNotFound();
+    }
     User user = new User();
     UserResponse response = new UserResponse();
 
@@ -72,31 +86,24 @@ public class UserService {
           LocalDateTime.ofInstant(
               Instant.ofEpochMilli(System.currentTimeMillis()), TimeZone.getDefault().toZoneId()));
       usersRepository.save(user);
-      return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    return response;
   }
 
-  public ResponseEntity<?> updateUser(
+  public UserResponse updateUser(
       String name,
       String email,
       String password,
       MultipartFile photo,
       Integer removePhoto,
       Principal principal) {
-    User user;
-    try {
-      user = usersRepository.findByEmail(principal.getName());
-    } catch (Exception e) {
-      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
-
+    User user = changeAuthorization(principal);
     UserResponse response = new UserResponse();
 
     if (photo != null && removePhoto == 0) {
       String pathLoad = "src/main/resources/avatars/";
       if (loadingFile(photo, pathLoad, true)) {
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        throw new ExceptionBadRequest();
       }
 
       user.setPhoto(pathLoad + photo.getOriginalFilename());
@@ -133,27 +140,22 @@ public class UserService {
               userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
       SecurityContextHolder.getContext().setAuthentication(auth);
     }
-    return new ResponseEntity<>(response, HttpStatus.OK);
+    return response;
   }
 
-  public ResponseEntity<?> updatePassword(PasswordRequest request) {
+  public UserResponse updatePassword(PasswordRequest request) {
     UserResponse response = new UserResponse();
     changeParameterCode(request.getCaptchaSecret(), response);
     changeParameterPassword(request.getPassword(), response);
     changeParameterCaptcha(request.getCaptcha(), request.getCaptchaSecret(), response);
-    return new ResponseEntity<>(response, HttpStatus.OK);
+    return response;
   }
 
   public ResponseEntity<?> addPhoto(MultipartFile image, Principal principal) {
-    User user;
-    try {
-      user = usersRepository.findByEmail(principal.getName());
-    } catch (Exception e) {
-      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
+    User user = changeAuthorization(principal);
     UserResponse response = new UserResponse();
     String pathLoad = "src/main/resources/upload/";
-    if (loadingFile(image, pathLoad, false)) {
+    if (loadingFile(image, pathLoad + generatorPatch(), false)) {
       response.getErrors().put("image", "Размер файла превышает допустимый размер");
       return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -161,7 +163,7 @@ public class UserService {
     return new ResponseEntity<>(pathLoad + image.getOriginalFilename(), HttpStatus.OK);
   }
 
-  public ResponseEntity<?> recoveryPassword(UserRequest request) {
+  public UserResponse recoveryPassword(UserRequest request) {
     UserResponse response = new UserResponse();
     User user = usersRepository.findByEmail(request.getEmail());
     if (user != null) {
@@ -169,11 +171,10 @@ public class UserService {
       usersRepository.save(user);
       response.setResult(true);
     }
-    return new ResponseEntity<>(response, HttpStatus.OK);
+    return response;
   }
 
   private boolean changeParameterEmail(String email, UserResponse response) {
-
     if (usersRepository.findByEmail(email) == null) {
       return true;
     } else {
@@ -227,14 +228,14 @@ public class UserService {
 
   private boolean loadingFile(MultipartFile image, String pathLoad, boolean isCompress) {
     String[] fileName = Objects.requireNonNull(image.getOriginalFilename()).split("\\.");
-
-    if (!((fileName[fileName.length - 1].equals("jpg")
+    if (!(fileName[fileName.length - 1].equals("jpg")
             || fileName[fileName.length - 1].equals("png"))
-        || image.getSize() < 1048576)) {
+        || image.getSize() > 5 * 1048576) {
       return true;
     }
     String path = pathLoad + image.getOriginalFilename();
     try {
+      Files.createDirectories(Paths.get(pathLoad));
       File photo = new File(path);
       FileOutputStream fileOutputStream = new FileOutputStream(photo);
       fileOutputStream.write(image.getBytes());
@@ -249,11 +250,33 @@ public class UserService {
   }
 
   private String generatorCode() {
-    String abc = "abcdefghijklmnopqrstuvwxyz0123456789";
     StringBuilder code = new StringBuilder();
     for (int i = 1; i <= 45; i++) {
       code.append(abc.charAt(new Random().nextInt(abc.length())));
     }
     return code.toString();
+  }
+
+  private String generatorPatch() {
+    StringBuilder patch = new StringBuilder();
+    for (int i = 1; i <= 3; i++) {
+      patch.append(abc.charAt(new Random().nextInt(abc.length())));
+      patch.append(abc.charAt(new Random().nextInt(abc.length())));
+      patch.append("/");
+    }
+    return patch.toString();
+  }
+
+  private User changeAuthorization(Principal principal) {
+    User user;
+    try {
+      user = usersRepository.findByEmail(principal.getName());
+    } catch (Exception e) {
+      throw new ExceptionUnauthorized();
+    }
+    if (user == null) {
+      throw new ExceptionUnauthorized();
+    }
+    return user;
   }
 }

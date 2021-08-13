@@ -1,6 +1,5 @@
 package main.repository;
 
-import main.models.Post;
 import main.models.PostVote;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +22,4 @@ public interface PostVotesRepository extends CrudRepository<PostVote, Integer> {
       value = "select * from post_votes where user_id = :user_id and post_id = :post_id ;",
       nativeQuery = true)
   PostVote findByUserIdAndPostId(@Param("user_id") int userId, @Param("post_id") int postId);
-
-
 }

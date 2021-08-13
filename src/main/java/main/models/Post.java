@@ -1,5 +1,6 @@
 package main.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -70,6 +71,7 @@ public class Post {
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<PostVote> postVotes;
 
+  @JsonIgnore
   @ManyToMany()
   @JoinTable(
       name = "tag2post",

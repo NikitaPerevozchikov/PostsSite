@@ -5,8 +5,14 @@ import java.security.Principal;
 import main.api.request.CommentRequest;
 import main.api.request.GlobalSettingsRequest;
 import main.api.request.ModerationRequest;
+import main.api.response.CommentResponse;
+import main.api.response.GlobalSettingsResponse;
 import main.api.response.InitResponse;
+import main.api.response.PostResponse;
 import main.api.response.StatisticResponse;
+import main.api.response.Tag2PostsResponse;
+import main.api.response.UserResponse;
+import main.api.response.calendarResponse.CalendarResponse;
 import main.service.CalendarService;
 import main.service.GlobalSettingsService;
 import main.service.PostCommentsService;
@@ -14,13 +20,16 @@ import main.service.PostsService;
 import main.service.Tag2PostsService;
 import main.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,30 +69,31 @@ public class ApiGeneralController {
   }
 
   @GetMapping("/settings")
-  public ResponseEntity<?> getGlobalSettings() {
+  public GlobalSettingsResponse getGlobalSettings() {
     return globalSettingsService.getGlobalSettings();
   }
 
   @GetMapping("/calendar")
-  public ResponseEntity<?> getPostsByDate(
+  public CalendarResponse getPostsByDate(
       @RequestParam(name = "year", required = false) String year) {
     return calendarService.getPostsByDate(year);
   }
 
-  @PostMapping("/settings")
+  @PutMapping("/settings")
   public ResponseEntity<?> updateGlobalSettings(
       GlobalSettingsRequest request, Principal principal) {
     return globalSettingsService.updateSettings(request, principal);
   }
 
   @GetMapping("/tag")
-  public ResponseEntity<?> getPostsByTags(
+  public Tag2PostsResponse getPostsByTags(
       @RequestParam(name = "query", required = false) String query) {
     return tag2PostsService.getGroupByTags(query);
   }
 
   @PostMapping("/profile/my")
-  public ResponseEntity<?> updateUser(
+  @ResponseStatus(value = HttpStatus.OK)
+  public UserResponse updateUser(
       @RequestParam(required = false) String name,
       @RequestParam(required = false) @JsonProperty("e_mail") String email,
       @RequestParam(required = false) String password,
@@ -94,27 +104,29 @@ public class ApiGeneralController {
   }
 
   @PostMapping("/moderation")
-  public ResponseEntity<?> updateModStatus(
-      @RequestBody ModerationRequest request, Principal principal) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostResponse updateModStatus(@RequestBody ModerationRequest request, Principal principal) {
     return postsService.updateModStatus(request, principal);
   }
 
   @GetMapping("/statistics/my")
-  public ResponseEntity<?> getMyStatistic(Principal principal) {
+  public StatisticResponse getMyStatistic(Principal principal) {
     return postsService.getMyStatistic(principal);
   }
 
   @GetMapping("/statistics/all")
-  public ResponseEntity<StatisticResponse> getAllStatistic(Principal principal) {
+  public StatisticResponse getAllStatistic(Principal principal) {
     return postsService.getAllStatistic(principal);
   }
 
   @PostMapping("/comment")
-  public ResponseEntity<?> createComment(@RequestBody CommentRequest request, Principal principal) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public CommentResponse createComment(@RequestBody CommentRequest request, Principal principal) {
     return postCommentsService.createComment(request, principal);
   }
 
   @PostMapping("/image")
+  @ResponseStatus(value = HttpStatus.OK)
   public ResponseEntity<?> addPhoto(@RequestPart MultipartFile image, Principal principal) {
     return userService.addPhoto(image, principal);
   }

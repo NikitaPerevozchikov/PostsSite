@@ -52,18 +52,6 @@ public interface PostsRepository extends CrudRepository<Post, Integer> {
 
   @Query(
       value =
-          "select *from posts as p "
-              + "left join post_votes as pv on pv.post_id = p.id "
-              + "where p.is_active = 1 "
-              + "and p.moderation_status = 'ACCEPTED' "
-              + "and p.time <= now() "
-              + "group by p.id "
-              + "order by sum(case when pv.value=1 then 1 else 0 end) desc ",
-      nativeQuery = true)
-  Page<Post> findGroupByLikes(Pageable pageable);
-
-  @Query(
-      value =
           "select * from posts "
               + "where is_active = 1 "
               + "and moderation_status = 'ACCEPTED' "

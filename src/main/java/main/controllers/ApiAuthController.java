@@ -10,20 +10,21 @@ import main.api.response.UserResponse;
 import main.service.AuthorizationService;
 import main.service.CaptchaService;
 import main.service.UserService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
 public class ApiAuthController {
 
-  private AuthorizationService authorizationService;
-  private UserService userService;
-  private CaptchaService captchaService;
+  private final AuthorizationService authorizationService;
+  private final UserService userService;
+  private final CaptchaService captchaService;
 
   public ApiAuthController(
       AuthorizationService authorizationService,
@@ -35,41 +36,44 @@ public class ApiAuthController {
   }
 
   @GetMapping("/check")
-  public ResponseEntity<?> getCheckAuthorization(Principal principal) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public AuthorizationResponse getCheckAuthorization(Principal principal) {
     return authorizationService.getCheckAuthorization(principal);
   }
 
   @GetMapping("/captcha")
-  public ResponseEntity<?> addCaptcha() {
+  public CaptchaResponse addCaptcha() {
     return captchaService.addCaptcha();
   }
 
   @PostMapping("/register")
-  public ResponseEntity<?> addUser(@RequestBody UserRequest userRequest) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public UserResponse addUser(@RequestBody UserRequest userRequest) {
     return userService.addUser(userRequest);
   }
 
   @PostMapping("/login")
-  public ResponseEntity<?> addAuthorizationUser(
+  @ResponseStatus(value = HttpStatus.OK)
+  public AuthorizationResponse addAuthorizationUser(
       @RequestBody AuthorizationRequest authorizationRequest) {
     return authorizationService.addAuthorizationUser(authorizationRequest);
   }
 
   @GetMapping("/logout")
-  public ResponseEntity<?> deleteAuthorizationUser() {
+  @ResponseStatus(value = HttpStatus.OK)
+  public AuthorizationResponse deleteAuthorizationUser() {
     return authorizationService.deleteAuthorizationUser();
   }
 
   @PostMapping("/restore")
-  public ResponseEntity<?> recoveryPassword(@RequestBody UserRequest request) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public UserResponse recoveryPassword(@RequestBody UserRequest request) {
     return userService.recoveryPassword(request);
   }
 
   @PostMapping("/password")
-  public ResponseEntity<?> updatePassword(@RequestBody PasswordRequest request) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public UserResponse updatePassword(@RequestBody PasswordRequest request) {
     return userService.updatePassword(request);
   }
-
-
-
 }

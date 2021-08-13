@@ -3,10 +3,12 @@ package main.controllers;
 import java.security.Principal;
 import main.api.request.PostRequest;
 import main.api.request.VotesRequest;
+import main.api.response.GetPostResponse;
 import main.api.response.PostResponse;
+import main.api.response.PostsResponse;
 import main.service.PostCommentsService;
 import main.service.PostsService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,13 +16,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/post")
 public class ApiPostController {
 
-  private PostsService postsService;
+  private final PostsService postsService;
 
   public ApiPostController(PostsService postsService, PostCommentsService postCommentsService) {
 
@@ -28,7 +31,8 @@ public class ApiPostController {
   }
 
   @GetMapping("")
-  public ResponseEntity<?> getGroupPosts(
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostsResponse getGroupPosts(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("mode") String mode) {
@@ -36,7 +40,8 @@ public class ApiPostController {
   }
 
   @GetMapping("/search")
-  public ResponseEntity<?> getPostsByQuery(
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostsResponse getPostsByQuery(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("query") String query) {
@@ -44,7 +49,8 @@ public class ApiPostController {
   }
 
   @GetMapping("/byDate")
-  public ResponseEntity<?> getGroupByDate(
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostsResponse getGroupByDate(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("date") String date) {
@@ -52,7 +58,8 @@ public class ApiPostController {
   }
 
   @GetMapping("/byTag")
-  public ResponseEntity<?> getGroupByTag(
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostsResponse getGroupByTag(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("tag") String tag) {
@@ -60,21 +67,23 @@ public class ApiPostController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<?> getPost(@PathVariable int id) {
+  public GetPostResponse getPost(@PathVariable int id) {
     return postsService.getPost(id);
   }
 
   @GetMapping("/moderation")
-  public ResponseEntity<?> getMyModPosts(
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostsResponse getPostsForMod (
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("status") String status,
       Principal principal) {
-    return postsService.getMyModPosts(offset, limit, status, principal);
+    return postsService.getPostsForMod(offset, limit, status, principal);
   }
 
   @GetMapping("/my")
-  public ResponseEntity<?> getMyPosts(
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostsResponse getMyPosts(
       @RequestParam("offset") int offset,
       @RequestParam("limit") int limit,
       @RequestParam("status") String status,
@@ -83,23 +92,27 @@ public class ApiPostController {
   }
 
   @PostMapping("")
-  public ResponseEntity<?> addPost(@RequestBody PostRequest request, Principal principal) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostResponse addPost(@RequestBody PostRequest request, Principal principal) {
     return postsService.addPost(request, principal);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<?> updatePost(
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostResponse updatePost(
       @PathVariable int id, @RequestBody PostRequest request, Principal principal) {
     return postsService.updatePost(id, request, principal);
   }
 
   @PostMapping("/like")
-  public ResponseEntity<?> addLike(@RequestBody VotesRequest request, Principal principal) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostResponse addLike(@RequestBody VotesRequest request, Principal principal) {
     return postsService.addVotes(request, principal, "like");
   }
 
   @PostMapping("/dislike")
-  public ResponseEntity<?> addDisLike(@RequestBody VotesRequest request, Principal principal) {
+  @ResponseStatus(value = HttpStatus.OK)
+  public PostResponse addDisLike(@RequestBody VotesRequest request, Principal principal) {
     return postsService.addVotes(request, principal, "dislike");
   }
 }

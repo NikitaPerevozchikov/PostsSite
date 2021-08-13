@@ -17,12 +17,12 @@ public class Tag2PostsService {
     this.tag2PostsRepository = tag2PostsRepository;
   }
 
-  public ResponseEntity<?> getGroupByTags(String query) {
+  public Tag2PostsResponse getGroupByTags(String query) {
     Tag2PostsResponse response = new Tag2PostsResponse();
     response.setTags(
         query == null
             ? tag2PostsRepository.getGroupByTags()
             : tag2PostsRepository.getGroupByTags(query));
-    return new ResponseEntity<>(response, HttpStatus.OK);
+    return response;
   }
 }

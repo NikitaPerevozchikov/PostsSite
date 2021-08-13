@@ -7,8 +7,6 @@ import main.api.response.AuthorizationResponse.UserResponse;
 import main.repository.PostsRepository;
 import main.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthorizationService {
+
   private final UsersRepository usersRepository;
   private final PostsRepository postsRepository;
   private final AuthenticationManager authenticationManager;
@@ -32,14 +31,14 @@ public class AuthorizationService {
     this.authenticationManager = authenticationManager;
   }
 
-  public ResponseEntity<?> getCheckAuthorization(Principal principal) {
+  public AuthorizationResponse getCheckAuthorization(Principal principal) {
     if (principal == null) {
-      return new ResponseEntity<>(new AuthorizationResponse(), HttpStatus.OK);
+      return new AuthorizationResponse();
     }
-    return new ResponseEntity<>(completeAuthorizationResponse(principal.getName()), HttpStatus.OK);
+    return completeAuthorizationResponse(principal.getName());
   }
 
-  public ResponseEntity<?> addAuthorizationUser(AuthorizationRequest authorizationRequest) {
+  public AuthorizationResponse addAuthorizationUser(AuthorizationRequest authorizationRequest) {
     try {
       Authentication auth =
           authenticationManager.authenticate(
@@ -47,17 +46,17 @@ public class AuthorizationService {
                   authorizationRequest.getEmail(), authorizationRequest.getPassword()));
       SecurityContextHolder.getContext().setAuthentication(auth);
       User user = (User) auth.getPrincipal();
-      return new ResponseEntity<>(completeAuthorizationResponse(user.getUsername()), HttpStatus.OK);
+      return completeAuthorizationResponse(user.getUsername());
     } catch (Exception e) {
-      return new ResponseEntity<>(new AuthorizationResponse(), HttpStatus.OK);
+      return new AuthorizationResponse();
     }
   }
 
-  public ResponseEntity<?> deleteAuthorizationUser() {
+  public AuthorizationResponse deleteAuthorizationUser() {
     SecurityContextHolder.clearContext();
     AuthorizationResponse response = new AuthorizationResponse();
     response.setResult(true);
-    return new ResponseEntity<>(response, HttpStatus.OK);
+    return response;
   }
 
   private AuthorizationResponse completeAuthorizationResponse(String email) {

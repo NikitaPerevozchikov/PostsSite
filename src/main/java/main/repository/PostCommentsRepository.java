@@ -9,6 +9,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostCommentsRepository extends CrudRepository<PostComment, Integer> {
 
-  @Query(value = "select * from post_comments where id = :id group by id;", nativeQuery = true)
-  PostComment findByCommentId(@Param("id") int id);
 }
