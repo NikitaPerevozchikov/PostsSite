@@ -64,15 +64,6 @@ public class PostsService {
   }
 
   public PostsResponse getGroupPosts(Integer offset, Integer limit, String mode) {
-    if (offset == null) {
-      offset = 0;
-    }
-    if (limit == null) {
-      limit = 10;
-    }
-    if (mode == null) {
-      mode = "recent";
-    }
     Page<Post> posts =
         (mode.equals("popular")
             ? postsRepository.findGroupByComments(PageRequest.of(offset, limit, Sort.unsorted()))
@@ -96,24 +87,13 @@ public class PostsService {
   }
 
   public PostsResponse getGroupByDate(Integer offset, Integer limit, String date) {
-    if (offset == null) {
-      offset = 0;
-    }
-    if (limit == null) {
-      limit = 10;
-    }
+
     Page<Post> posts = postsRepository.findGroupByDate(date, PageRequest.of(offset, limit));
     return competePostsResponse(posts);
   }
 
   public PostsResponse getGroupByTag(Integer offset, Integer limit, String tag) {
 
-    if (offset == null) {
-      offset = 0;
-    }
-    if (limit == null) {
-      limit = 10;
-    }
     Page<Post> posts = postsRepository.findGroupByTag(tag, PageRequest.of(offset, limit));
     return competePostsResponse(posts);
   }
@@ -163,15 +143,6 @@ public class PostsService {
   public PostsResponse getMyPosts(
       Integer offset, Integer limit, String status, Principal principal) {
     main.models.User user = changeAuthorization(principal, "user");
-    if (offset == null) {
-      offset = 0;
-    }
-    if (limit == null) {
-      limit = 10;
-    }
-    if (status == null) {
-      status = "published";
-    }
     Page<Post> posts =
         (status.equals("inactive")
             ? postsRepository.findByUserIdInactive(user.getId(), PageRequest.of(offset, limit))
@@ -189,15 +160,6 @@ public class PostsService {
   public PostsResponse getPostsForMod(
       Integer offset, Integer limit, String status, Principal principal) {
     main.models.User user = changeAuthorization(principal, "moderator");
-    if (offset == null) {
-      offset = 0;
-    }
-    if (limit == null) {
-      limit = 10;
-    }
-    if (status == null) {
-      status = "new";
-    }
     Page<Post> posts =
         (status.equals("declined")
             ? postsRepository.findMyModPostByDeclined(user.getId(), PageRequest.of(offset, limit))

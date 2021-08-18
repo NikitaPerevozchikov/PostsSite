@@ -33,17 +33,17 @@ public class ApiPostController {
   @GetMapping("")
   @ResponseStatus(value = HttpStatus.OK)
   public PostsResponse getGroupPosts(
-      @RequestParam("offset") int offset,
-      @RequestParam("limit") int limit,
-      @RequestParam("mode") String mode) {
+      @RequestParam(name = "offset", defaultValue = "0") int offset,
+      @RequestParam(name = "limit", defaultValue = "10") int limit,
+      @RequestParam(name = "mode", defaultValue = "recent") String mode) {
     return postsService.getGroupPosts(offset, limit, mode);
   }
 
   @GetMapping("/search")
   @ResponseStatus(value = HttpStatus.OK)
   public PostsResponse getPostsByQuery(
-      @RequestParam("offset") int offset,
-      @RequestParam("limit") int limit,
+      @RequestParam(name = "offset", defaultValue = "0") int offset,
+      @RequestParam(name = "limit", defaultValue = "10") int limit,
       @RequestParam("query") String query) {
     return postsService.getPostsByQuery(offset, limit, query);
   }
@@ -51,18 +51,18 @@ public class ApiPostController {
   @GetMapping("/byDate")
   @ResponseStatus(value = HttpStatus.OK)
   public PostsResponse getGroupByDate(
-      @RequestParam("offset") int offset,
-      @RequestParam("limit") int limit,
-      @RequestParam("date") String date) {
+      @RequestParam(name = "offset", defaultValue = "0") int offset,
+      @RequestParam(name = "limit", defaultValue = "10") int limit,
+      @RequestParam(name = "date") String date) {
     return postsService.getGroupByDate(offset, limit, date);
   }
 
   @GetMapping("/byTag")
   @ResponseStatus(value = HttpStatus.OK)
   public PostsResponse getGroupByTag(
-      @RequestParam("offset") int offset,
-      @RequestParam("limit") int limit,
-      @RequestParam("tag") String tag) {
+      @RequestParam(name = "offset", defaultValue = "0") int offset,
+      @RequestParam(name = "limit", defaultValue = "10") int limit,
+      @RequestParam(name = "tag") String tag) {
     return postsService.getGroupByTag(offset, limit, tag);
   }
 
@@ -73,10 +73,10 @@ public class ApiPostController {
 
   @GetMapping("/moderation")
   @ResponseStatus(value = HttpStatus.OK)
-  public PostsResponse getPostsForMod (
-      @RequestParam("offset") int offset,
-      @RequestParam("limit") int limit,
-      @RequestParam("status") String status,
+  public PostsResponse getPostsForMod(
+      @RequestParam(name = "offset", defaultValue = "0") int offset,
+      @RequestParam(name = "limit", defaultValue = "10") int limit,
+      @RequestParam(name = "status", defaultValue = "new") String status,
       Principal principal) {
     return postsService.getPostsForMod(offset, limit, status, principal);
   }
@@ -84,9 +84,9 @@ public class ApiPostController {
   @GetMapping("/my")
   @ResponseStatus(value = HttpStatus.OK)
   public PostsResponse getMyPosts(
-      @RequestParam("offset") int offset,
-      @RequestParam("limit") int limit,
-      @RequestParam("status") String status,
+      @RequestParam(name = "offset", defaultValue = "0") int offset,
+      @RequestParam(name = "limit", defaultValue = "10") int limit,
+      @RequestParam(name = "status", defaultValue = "published") String status,
       Principal principal) {
     return postsService.getMyPosts(offset, limit, status, principal);
   }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.Instant;
@@ -14,6 +13,7 @@ import java.util.Random;
 import java.util.TimeZone;
 import main.api.request.PasswordRequest;
 import main.api.request.UserRequest;
+import main.api.request.UserUpdateRequest;
 import main.api.response.UserResponse;
 import main.exceptions.ExceptionBadRequest;
 import main.exceptions.ExceptionNotFound;
@@ -91,42 +91,38 @@ public class UserService {
   }
 
   public UserResponse updateUser(
-      String name,
-      String email,
-      String password,
-      MultipartFile photo,
-      Integer removePhoto,
-      Principal principal) {
+      UserUpdateRequest request, MultipartFile photo, Principal principal) {
     User user = changeAuthorization(principal);
     UserResponse response = new UserResponse();
 
-    if (photo != null && removePhoto == 0) {
-      String pathLoad = "src/main/resources/avatars/";
-      if (loadingFile(photo, pathLoad, true)) {
-        throw new ExceptionBadRequest();
+    if (request.getRemovePhoto() != null) {
+      if (request.getRemovePhoto() == 1) {
+        user.setPhoto("");
       }
-
-      user.setPhoto(pathLoad + photo.getOriginalFilename());
-    }
-    if (photo != null && removePhoto == 1) {
-      user.setPhoto("");
-    }
-
-    if (email != null && !email.equals(user.getEmail())) {
-      if (changeParameterEmail(email, response)) {
-        user.setEmail(email);
+      if (request.getRemovePhoto() == 0) {
+        String pathLoad = "src/main/resources/avatars/";
+        if (loadingFile(photo, pathLoad, true)) {
+          throw new ExceptionBadRequest();
+        }
+        user.setPhoto(pathLoad + photo.getOriginalFilename());
       }
     }
 
-    if (name != null) {
-      if (changeParameterName(name, response)) {
-        user.setName(name);
+    if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+      if (changeParameterEmail(request.getEmail(), response)) {
+        user.setEmail(request.getEmail());
       }
     }
 
-    if (password != null) {
-      if (changeParameterPassword(password, response)) {
-        user.setPassword(passwordEncoder.encode(password));
+    if (request.getName() != null) {
+      if (changeParameterName(request.getName(), response)) {
+        user.setName(request.getName());
+      }
+    }
+
+    if (request.getPassword() != null) {
+      if (changeParameterPassword(request.getPassword(), response)) {
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
       }
     }
 

@@ -1,10 +1,10 @@
 package main.controllers;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.security.Principal;
 import main.api.request.CommentRequest;
 import main.api.request.GlobalSettingsRequest;
 import main.api.request.ModerationRequest;
+import main.api.request.UserUpdateRequest;
 import main.api.response.CommentResponse;
 import main.api.response.GlobalSettingsResponse;
 import main.api.response.InitResponse;
@@ -21,8 +21,10 @@ import main.service.Tag2PostsService;
 import main.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -91,16 +93,24 @@ public class ApiGeneralController {
     return tag2PostsService.getGroupByTags(query);
   }
 
-  @PostMapping("/profile/my")
+  @PostMapping(
+      value = "/profile/my",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @ResponseStatus(value = HttpStatus.OK)
-  public UserResponse updateUser(
-      @RequestParam(required = false) String name,
-      @RequestParam(required = false) @JsonProperty("e_mail") String email,
-      @RequestParam(required = false) String password,
-      @RequestParam(required = false) MultipartFile photo,
-      @RequestParam(required = false) Integer removePhoto,
+  public UserResponse editProfile(
+      @ModelAttribute UserUpdateRequest request,
+      @RequestPart(required = false) MultipartFile photo,
       Principal principal) {
-    return userService.updateUser(name, email, password, photo, removePhoto, principal);
+    return userService.updateUser(request, photo, principal);
+  }
+
+  @PostMapping(value = "/profile/my")
+  @ResponseStatus(value = HttpStatus.OK)
+  public UserResponse editProfileDeletePhoto(
+      @RequestBody UserUpdateRequest request,
+      @RequestPart(required = false) MultipartFile photo,
+      Principal principal) {
+    return userService.updateUser(request, photo, principal);
   }
 
   @PostMapping("/moderation")
@@ -125,7 +135,9 @@ public class ApiGeneralController {
     return postCommentsService.createComment(request, principal);
   }
 
-  @PostMapping("/image")
+  @PostMapping(
+      value = "/image",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @ResponseStatus(value = HttpStatus.OK)
   public ResponseEntity<?> addPhoto(@RequestPart MultipartFile image, Principal principal) {
     return userService.addPhoto(image, principal);

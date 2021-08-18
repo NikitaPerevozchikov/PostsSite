@@ -63,15 +63,15 @@ public class AuthorizationService {
     main.models.User user = usersRepository.findByEmail(email);
     AuthorizationResponse response = new AuthorizationResponse();
     response.setResult(true);
-    UserResponse userResponse = new UserResponse();
-    userResponse.setId(user.getId());
-    userResponse.setName(user.getName());
-    userResponse.setEmail(user.getEmail());
-    userResponse.setPhoto(user.getPhoto());
-    userResponse.setModeration(user.isModerator());
-    userResponse.setSettings(user.isModerator());
-    userResponse.setModerationCount(
-        user.isModerator() ? postsRepository.findByModStatusNEW().size() : 0);
+    UserResponse userResponse =
+        new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getPhoto(),
+            user.getEmail(),
+            user.isModerator(),
+            (user.isModerator() ? postsRepository.findByModStatusNEW().size() : 0),
+            user.isModerator());
     response.setUserResponse(userResponse);
     return response;
   }
