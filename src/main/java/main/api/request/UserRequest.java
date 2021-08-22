@@ -1,5 +1,7 @@
 package main.api.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 @Getter
 @Setter
+@JsonInclude(Include.NON_NULL)
 public class UserRequest {
 
   @JsonProperty("e_mail")

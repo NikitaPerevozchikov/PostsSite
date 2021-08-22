@@ -2,7 +2,6 @@ package main.controllers;
 
 import java.security.Principal;
 import main.api.request.PostRequest;
-import main.api.request.VotesRequest;
 import main.api.response.GetPostResponse;
 import main.api.response.PostResponse;
 import main.api.response.PostsResponse;
@@ -106,13 +105,13 @@ public class ApiPostController {
 
   @PostMapping("/like")
   @ResponseStatus(value = HttpStatus.OK)
-  public PostResponse addLike(@RequestBody VotesRequest request, Principal principal) {
-    return postsService.addVotes(request, principal, "like");
+  public PostResponse addLike(@RequestParam("post_id") int postId, Principal principal) {
+    return postsService.addVotes(postId, principal, "like");
   }
 
   @PostMapping("/dislike")
   @ResponseStatus(value = HttpStatus.OK)
-  public PostResponse addDisLike(@RequestBody VotesRequest request, Principal principal) {
-    return postsService.addVotes(request, principal, "dislike");
+  public PostResponse addDisLike(@RequestParam("post_id") int postId, Principal principal) {
+    return postsService.addVotes(postId, principal, "dislike");
   }
 }

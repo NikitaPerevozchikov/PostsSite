@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import main.api.request.ModerationRequest;
 import main.api.request.PostRequest;
-import main.api.request.VotesRequest;
 import main.api.response.GetPostResponse;
 import main.api.response.GetPostResponse.Comment;
 import main.api.response.GetPostResponse.Comment.UserComment;
@@ -203,17 +202,16 @@ public class PostsService {
     return response;
   }
 
-  public PostResponse addVotes(VotesRequest request, Principal principal, String type) {
+  public PostResponse addVotes(int postId, Principal principal, String type) {
     main.models.User user = changeAuthorization(principal, "user");
     PostResponse response = new PostResponse();
-    PostVote postVote =
-        postVotesRepository.findByUserIdAndPostId(user.getId(), request.getPostId());
+    PostVote postVote = postVotesRepository.findByUserIdAndPostId(user.getId(), postId);
     if (postVote == null && type.equals("like")) {
-      postVotesRepository.makeLike(user.getId(), request.getPostId(), 1);
+      postVotesRepository.makeLike(user.getId(), postId, 1);
       response.setResult(true);
     }
     if (postVote == null && type.equals("dislike")) {
-      postVotesRepository.makeLike(user.getId(), request.getPostId(), -1);
+      postVotesRepository.makeLike(user.getId(), postId, -1);
       response.setResult(true);
     }
     return response;

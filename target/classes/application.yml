@@ -18,6 +18,27 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  main:
+    allow-bean-definition-overriding: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: user@gmail.com
+    password: username
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+        debug: false
+cloudinary:
+  cloud_name: hnlgwe8wh
+  api_key: 649347388144627
+  api_secret: ziCvB7zKhhzlqTr-buAmBk3_8NI
+
 blog:
   title: DevPub
   subtitle: Рассказы разработчиков

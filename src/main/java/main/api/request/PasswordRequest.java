@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 public class PasswordRequest {
+
   private String code;
   private String password;
   private String captcha;

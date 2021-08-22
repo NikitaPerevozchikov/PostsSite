@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @JsonInclude(Include.NON_NULL)
 public class ModerationRequest {
+
   @JsonProperty("post_id")
   private int postId;
 

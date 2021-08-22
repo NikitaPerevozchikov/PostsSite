@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 public class PostRequest {
+
   private long timestamp;
   private int active;
   private String title;

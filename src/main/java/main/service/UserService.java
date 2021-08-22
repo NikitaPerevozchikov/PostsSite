@@ -1,10 +1,5 @@
 package main.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,7 +10,7 @@ import main.api.request.PasswordRequest;
 import main.api.request.UserRequest;
 import main.api.request.UserUpdateRequest;
 import main.api.response.UserResponse;
-import main.exceptions.ExceptionBadRequest;
+import main.config.MailConfig;
 import main.exceptions.ExceptionNotFound;
 import main.exceptions.ExceptionUnauthorized;
 import main.models.CaptchaCode;
@@ -24,10 +19,11 @@ import main.repository.CaptchaCodesRepository;
 import main.repository.GlobalSettingsRepository;
 import main.repository.UsersRepository;
 import main.security.SecurityUser;
-import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,18 +39,23 @@ public class UserService {
   private final CaptchaCodesRepository captchaCodesRepository;
   private final PasswordEncoder passwordEncoder;
   private final GlobalSettingsRepository globalSettingsRepository;
-  private final String abc = "abcdefghijklmnopqrstuvwxyz0123456789";
+  private final ImageService cloudinaryService;
+  private final MailConfig mailConfig;
 
   @Autowired
   public UserService(
       UsersRepository usersRepository,
       CaptchaCodesRepository captchaCodesRepository,
       PasswordEncoder passwordEncoder,
-      GlobalSettingsRepository globalSettingsRepository) {
+      GlobalSettingsRepository globalSettingsRepository,
+      ImageService cloudinaryService,
+      MailConfig mailConfig) {
     this.usersRepository = usersRepository;
     this.captchaCodesRepository = captchaCodesRepository;
     this.passwordEncoder = passwordEncoder;
     this.globalSettingsRepository = globalSettingsRepository;
+    this.cloudinaryService = cloudinaryService;
+    this.mailConfig = mailConfig;
   }
 
   public UserResponse addUser(UserRequest request) {
@@ -97,14 +98,16 @@ public class UserService {
 
     if (request.getRemovePhoto() != null) {
       if (request.getRemovePhoto() == 1) {
+        cloudinaryService.deleteAvatar(user.getPhoto());
         user.setPhoto("");
       }
       if (request.getRemovePhoto() == 0) {
-        String pathLoad = "src/main/resources/avatars/";
-        if (loadingFile(photo, pathLoad, true)) {
-          throw new ExceptionBadRequest();
+        if (changeFile(photo)) {
+          response.getErrors().put("image", "Размер файла превышает допустимый размер");
+        } else {
+          String path = cloudinaryService.uploadAvatar(photo, user.getId());
+          user.setPhoto(path);
         }
-        user.setPhoto(pathLoad + photo.getOriginalFilename());
       }
     }
 
@@ -148,25 +151,33 @@ public class UserService {
   }
 
   public ResponseEntity<?> addPhoto(MultipartFile image, Principal principal) {
-    User user = changeAuthorization(principal);
-    UserResponse response = new UserResponse();
-    String pathLoad = "src/main/resources/upload/";
-    if (loadingFile(image, pathLoad + generatorPatch(), false)) {
+    changeAuthorization(principal);
+    if (changeFile(image)) {
+      UserResponse response = new UserResponse();
       response.getErrors().put("image", "Размер файла превышает допустимый размер");
       return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-    usersRepository.save(user);
-    return new ResponseEntity<>(pathLoad + image.getOriginalFilename(), HttpStatus.OK);
+    String path = cloudinaryService.uploadImage(image);
+    return new ResponseEntity<>(path, HttpStatus.OK);
   }
 
-  public UserResponse recoveryPassword(UserRequest request) {
+  public UserResponse recoveryPassword(String email) {
     UserResponse response = new UserResponse();
-    User user = usersRepository.findByEmail(request.getEmail());
+    User user = usersRepository.findByEmail(email);
     if (user != null) {
-      user.setCode(generatorCode());
+      String codeRecovery = generatorCode();
+      user.setCode(codeRecovery);
       usersRepository.save(user);
       response.setResult(true);
+
+      SimpleMailMessage mailMessage = new SimpleMailMessage();
+      mailMessage.setTo(email);
+      mailMessage.setSubject("Ссылка для восстановления пароля");
+      mailMessage.setText("/login/change-password/" + codeRecovery);
+      JavaMailSender javaMailSender = mailConfig.javaMailSender();
+      javaMailSender.send(mailMessage);
     }
+
     return response;
   }
 
@@ -222,45 +233,20 @@ public class UserService {
     }
   }
 
-  private boolean loadingFile(MultipartFile image, String pathLoad, boolean isCompress) {
+  private boolean changeFile(MultipartFile image) {
     String[] fileName = Objects.requireNonNull(image.getOriginalFilename()).split("\\.");
-    if (!(fileName[fileName.length - 1].equals("jpg")
+    return !(fileName[fileName.length - 1].equals("jpg")
             || fileName[fileName.length - 1].equals("png"))
-        || image.getSize() > 5 * 1048576) {
-      return true;
-    }
-    String path = pathLoad + image.getOriginalFilename();
-    try {
-      Files.createDirectories(Paths.get(pathLoad));
-      File photo = new File(path);
-      FileOutputStream fileOutputStream = new FileOutputStream(photo);
-      fileOutputStream.write(image.getBytes());
-      fileOutputStream.close();
-      if (isCompress) {
-        Thumbnails.of(path).size(36, 36).toFile(path);
-      }
-    } catch (IOException e) {
-      return true;
-    }
-    return false;
+        || image.getSize() > 5 * 1048576;
   }
 
   private String generatorCode() {
     StringBuilder code = new StringBuilder();
     for (int i = 1; i <= 45; i++) {
+      String abc = "abcdefghijklmnopqrstuvwxyz0123456789";
       code.append(abc.charAt(new Random().nextInt(abc.length())));
     }
     return code.toString();
-  }
-
-  private String generatorPatch() {
-    StringBuilder patch = new StringBuilder();
-    for (int i = 1; i <= 3; i++) {
-      patch.append(abc.charAt(new Random().nextInt(abc.length())));
-      patch.append(abc.charAt(new Random().nextInt(abc.length())));
-      patch.append("/");
-    }
-    return patch.toString();
   }
 
   private User changeAuthorization(Principal principal) {
