@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Random;
 import java.util.TimeZone;
+import main.api.request.EmailRequest;
 import main.api.request.PasswordRequest;
 import main.api.request.UserRequest;
 import main.api.request.UserUpdateRequest;
@@ -161,9 +162,9 @@ public class UserService {
     return new ResponseEntity<>(path, HttpStatus.OK);
   }
 
-  public UserResponse recoveryPassword(String email) {
+  public UserResponse recoveryPassword(EmailRequest request) {
     UserResponse response = new UserResponse();
-    User user = usersRepository.findByEmail(email);
+    User user = usersRepository.findByEmail(request.getEmail());
     if (user != null) {
       String codeRecovery = generatorCode();
       user.setCode(codeRecovery);
@@ -171,7 +172,7 @@ public class UserService {
       response.setResult(true);
 
       SimpleMailMessage mailMessage = new SimpleMailMessage();
-      mailMessage.setTo(email);
+      mailMessage.setTo(request.getEmail());
       mailMessage.setSubject("Ссылка для восстановления пароля");
       mailMessage.setText("/login/change-password/" + codeRecovery);
       JavaMailSender javaMailSender = mailConfig.javaMailSender();

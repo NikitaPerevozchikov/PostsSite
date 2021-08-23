@@ -2,6 +2,7 @@ package main.controllers;
 
 import java.security.Principal;
 import main.api.request.AuthorizationRequest;
+import main.api.request.EmailRequest;
 import main.api.request.PasswordRequest;
 import main.api.request.UserRequest;
 import main.api.response.AuthorizationResponse;
@@ -68,8 +69,8 @@ public class ApiAuthController {
 
   @PostMapping("/restore")
   @ResponseStatus(value = HttpStatus.OK)
-  public UserResponse recoveryPassword(@RequestParam(value = "email") String email) {
-    return userService.recoveryPassword(email);
+  public UserResponse recoveryPassword(@RequestBody EmailRequest request) {
+    return userService.recoveryPassword(request);
   }
 
   @PostMapping("/password")
