@@ -5,8 +5,8 @@ spring:
     url: jdbc:${JAWSDB_URL:mysql://localhost:3306/postsbase}
     username: root
     password: testTEST
-  liquibase:
-    change-log: db/chngelog/db.changelog-master.yaml
+#  liquibase:
+#    change-log: db/chngelog/db.changelog-master.yaml
   jpa:
     hibernate:
       ddl-auto: none
