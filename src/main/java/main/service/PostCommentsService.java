@@ -10,11 +10,12 @@ import main.exceptions.ExceptionBadRequest;
 import main.exceptions.ExceptionUnauthorized;
 import main.models.Post;
 import main.models.PostComment;
-import main.models.User;
 import main.repository.PostCommentsRepository;
 import main.repository.PostsRepository;
 import main.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,16 +37,16 @@ public class PostCommentsService {
     this.usersRepository = usersRepository;
   }
 
-  public CommentResponse createComment(CommentRequest request, Principal principal) {
-      main.models.User user;
-      try {
-          user = usersRepository.findByEmail(principal.getName());
-      } catch (Exception e) {
-        throw new ExceptionUnauthorized();
-      }
-      if (user == null) {
-        throw new ExceptionUnauthorized();
-      }
+  public ResponseEntity<?> createComment(CommentRequest request, Principal principal) {
+    main.models.User user;
+    try {
+      user = usersRepository.findByEmail(principal.getName());
+    } catch (Exception e) {
+      throw new ExceptionUnauthorized();
+    }
+    if (user == null) {
+      throw new ExceptionUnauthorized();
+    }
     Post post = postsRepository.findByPostId(request.getPostId());
     if (post == null
         || (request.getParentId() != null
@@ -56,7 +57,7 @@ public class PostCommentsService {
     CommentResponse response = new CommentResponse();
     PostComment comment = new PostComment();
 
-    if (request.getText().length() > 49) {
+    if (request.getText().length() > 10) {
       comment.setText(request.getText());
     } else {
       response.getErrors().put("text", "Текст публикации слишком короткий");
@@ -69,7 +70,8 @@ public class PostCommentsService {
           LocalDateTime.ofInstant(
               Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("UTC")));
       response.setId(postCommentsRepository.save(comment).getId());
+      return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    return response;
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
   }
 }

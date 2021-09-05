@@ -1,6 +1,5 @@
 package main.repository;
 
-import java.util.List;
 import main.models.Tag;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -11,6 +11,7 @@ import main.api.request.PasswordRequest;
 import main.api.request.UserRequest;
 import main.api.request.UserUpdateRequest;
 import main.api.response.UserResponse;
+import main.config.MailConfig;
 import main.exceptions.ExceptionNotFound;
 import main.exceptions.ExceptionUnauthorized;
 import main.models.CaptchaCode;
@@ -20,11 +21,9 @@ import main.repository.GlobalSettingsRepository;
 import main.repository.UsersRepository;
 import main.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +40,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final GlobalSettingsRepository globalSettingsRepository;
   private final ImageService cloudinaryService;
-  private final JavaMailSender javaMailSender;
+  private final MailConfig mailConfig;
 
   @Autowired
   public UserService(
@@ -50,13 +49,14 @@ public class UserService {
       PasswordEncoder passwordEncoder,
       GlobalSettingsRepository globalSettingsRepository,
       ImageService cloudinaryService,
-      @Qualifier("javaMailSender") JavaMailSender javaMailSender) {
+      MailConfig mailConfig) {
     this.usersRepository = usersRepository;
     this.captchaCodesRepository = captchaCodesRepository;
     this.passwordEncoder = passwordEncoder;
     this.globalSettingsRepository = globalSettingsRepository;
     this.cloudinaryService = cloudinaryService;
-    this.javaMailSender = javaMailSender;
+    this.mailConfig = mailConfig;
+    ;
   }
 
   public UserResponse addUser(UserRequest request) {
@@ -175,7 +175,7 @@ public class UserService {
       mailMessage.setTo(request.getEmail());
       mailMessage.setSubject("Ссылка для восстановления пароля");
       mailMessage.setText("/login/change-password/" + codeRecovery);
-      javaMailSender.send(mailMessage);
+      mailConfig.javaMailSender().send(mailMessage);
     }
 
     return response;

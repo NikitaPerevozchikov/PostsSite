@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import main.api.request.ModerationRequest;
 import main.api.request.PostRequest;
@@ -25,9 +26,11 @@ import main.models.ModerationStatus;
 import main.models.Post;
 import main.models.PostVote;
 import main.models.Tag;
+import main.models.Tag2Post;
 import main.repository.GlobalSettingsRepository;
 import main.repository.PostVotesRepository;
 import main.repository.PostsRepository;
+import main.repository.Tag2PostsRepository;
 import main.repository.TagRepository;
 import main.repository.UsersRepository;
 import org.jsoup.Jsoup;
@@ -48,6 +51,7 @@ public class PostsService {
   private final TagRepository tagRepository;
   private final PostVotesRepository postVotesRepository;
   private final GlobalSettingsRepository globalSettingsRepository;
+  private final Tag2PostsRepository tag2PostsRepository;
 
   @Autowired
   public PostsService(
@@ -55,12 +59,14 @@ public class PostsService {
       UsersRepository usersRepository,
       TagRepository tagRepository,
       PostVotesRepository postVotesRepository,
-      GlobalSettingsRepository globalSettingsRepository) {
+      GlobalSettingsRepository globalSettingsRepository,
+      Tag2PostsRepository tag2PostsRepository) {
     this.postsRepository = postsRepository;
     this.usersRepository = usersRepository;
     this.tagRepository = tagRepository;
     this.postVotesRepository = postVotesRepository;
     this.globalSettingsRepository = globalSettingsRepository;
+    this.tag2PostsRepository = tag2PostsRepository;
   }
 
   public PostsResponse getGroupPosts(Integer offset, Integer limit, String mode) {
@@ -206,7 +212,8 @@ public class PostsService {
   public PostResponse addVotes(VoteRequest request, Principal principal, String type) {
     main.models.User user = changeAuthorization(principal, "user");
     PostResponse response = new PostResponse();
-    PostVote postVote = postVotesRepository.findByUserIdAndPostId(user.getId(), request.getPostId());
+    PostVote postVote =
+        postVotesRepository.findByUserIdAndPostId(user.getId(), request.getPostId());
     if (postVote == null && type.equals("like")) {
       postVotesRepository.makeLike(user.getId(), request.getPostId(), 1);
       response.setResult(true);
@@ -279,22 +286,18 @@ public class PostsService {
                       ? System.currentTimeMillis()
                       : request.getTimestamp() * 1000),
               ZoneId.of("UTC")));
-
       post.setActive(request.getActive() == 1);
-      if (!request.getTags().isEmpty()) {
-        request
-            .getTags()
-            .forEach(
-                e -> {
-                  if (tagRepository.findByName(e) == null) {
-                    tagRepository.createNewTag(e);
-                  }
-                  if (post.getTags() == null) {
-                    post.setTags(new HashSet<>());
-                  }
-                  post.getTags().add(tagRepository.findByName(e));
-                });
-      }
+      Set<Tag> updateTags = new HashSet<>();
+      request
+          .getTags()
+          .forEach(
+              e -> {
+                if (tagRepository.findByName(e) == null) {
+                  tagRepository.createNewTag(e);
+                }
+                updateTags.add(tagRepository.findByName(e));
+              });
+      post.setTags(updateTags);
       post.setModerationStatus(
           globalSettingsRepository.findValueByCode("POST_PREMODERATION").equals("YES")
               ? ModerationStatus.NEW
@@ -317,7 +320,8 @@ public class PostsService {
           post.setUser(new User(e.getUser().getId(), e.getUser().getName()));
           post.setTitle(e.getTitle());
           String announce = Jsoup.clean(e.getText(), Whitelist.none());
-          post.setAnnounce((announce.length() > 150 ? announce.substring(150) : announce) + "...");
+          post.setAnnounce(
+              (announce.length() > 150 ? announce.substring(0, 150) : announce) + ".." + ".");
           e.getPostVotes()
               .forEach(
                   v -> {

@@ -19,7 +19,6 @@ import lombok.ToString;
 @Table(name = "users")
 @Getter
 @Setter
-@ToString
 public class User {
 
   @Id

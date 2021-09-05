@@ -48,11 +48,7 @@ public class Post {
   @ManyToOne(cascade = CascadeType.ALL)
   private User moderator;
 
-  @JoinColumn(
-      name = "user_id",
-      updatable = false,
-      nullable = false,
-      columnDefinition = "INT")
+  @JoinColumn(name = "user_id", updatable = false, nullable = false, columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
 
@@ -75,8 +71,8 @@ public class Post {
   @ManyToMany()
   @JoinTable(
       name = "tag2post",
-      joinColumns = {@JoinColumn(name = "tag_id")},
-      inverseJoinColumns = {@JoinColumn(name = "post_id")})
+      joinColumns = {@JoinColumn(name = "post_id")},
+      inverseJoinColumns = {@JoinColumn(name = "tag_id")})
   private Set<Tag> tags;
 
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)

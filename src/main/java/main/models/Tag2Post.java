@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -23,7 +24,6 @@ public class Tag2Post {
 
   @JoinColumn(
       name = "post_id",
-      insertable = false,
       updatable = false,
       nullable = false,
       columnDefinition = "INT")
@@ -32,7 +32,6 @@ public class Tag2Post {
 
   @JoinColumn(
       name = "tag_id",
-      insertable = false,
       updatable = false,
       nullable = false,
       columnDefinition = "INT")

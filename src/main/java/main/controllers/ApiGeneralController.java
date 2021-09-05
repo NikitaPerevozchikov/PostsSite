@@ -130,8 +130,7 @@ public class ApiGeneralController {
   }
 
   @PostMapping("/comment")
-  @ResponseStatus(value = HttpStatus.OK)
-  public CommentResponse createComment(@RequestBody CommentRequest request, Principal principal) {
+  public ResponseEntity<?> createComment(@RequestBody CommentRequest request, Principal principal) {
     return postCommentsService.createComment(request, principal);
   }
 
