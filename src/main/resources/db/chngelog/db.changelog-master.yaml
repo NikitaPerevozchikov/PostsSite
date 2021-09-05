@@ -1,5 +1,9 @@
 databaseChangeLog:
   - logicalFilePath: db/changelog/db.changelog-001.yaml
+  - includeAll:
+    path: classpath*:db/changelog/
+  - include:
+    file: db/changelog/changes/db.changelog-001.yaml
   - changeSet:
       id: 00001
       author: NikitaPerevozchikov

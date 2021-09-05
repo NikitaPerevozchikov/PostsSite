@@ -50,7 +50,7 @@ public class UserService {
       PasswordEncoder passwordEncoder,
       GlobalSettingsRepository globalSettingsRepository,
       ImageService cloudinaryService,
-      JavaMailSender javaMailSender) {
+      @Qualifier("javaMailSender") JavaMailSender javaMailSender) {
     this.usersRepository = usersRepository;
     this.captchaCodesRepository = captchaCodesRepository;
     this.passwordEncoder = passwordEncoder;
