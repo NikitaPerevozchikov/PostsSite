@@ -11,7 +11,6 @@ import main.api.request.PasswordRequest;
 import main.api.request.UserRequest;
 import main.api.request.UserUpdateRequest;
 import main.api.response.UserResponse;
-import main.config.MailConfig;
 import main.exceptions.ExceptionNotFound;
 import main.exceptions.ExceptionUnauthorized;
 import main.models.CaptchaCode;
@@ -21,6 +20,7 @@ import main.repository.GlobalSettingsRepository;
 import main.repository.UsersRepository;
 import main.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -41,7 +41,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final GlobalSettingsRepository globalSettingsRepository;
   private final ImageService cloudinaryService;
-  private final MailConfig mailConfig;
+  private final JavaMailSender javaMailSender;
 
   @Autowired
   public UserService(
@@ -50,13 +50,13 @@ public class UserService {
       PasswordEncoder passwordEncoder,
       GlobalSettingsRepository globalSettingsRepository,
       ImageService cloudinaryService,
-      MailConfig mailConfig) {
+      JavaMailSender javaMailSender) {
     this.usersRepository = usersRepository;
     this.captchaCodesRepository = captchaCodesRepository;
     this.passwordEncoder = passwordEncoder;
     this.globalSettingsRepository = globalSettingsRepository;
     this.cloudinaryService = cloudinaryService;
-    this.mailConfig = mailConfig;
+    this.javaMailSender = javaMailSender;
   }
 
   public UserResponse addUser(UserRequest request) {
@@ -175,7 +175,6 @@ public class UserService {
       mailMessage.setTo(request.getEmail());
       mailMessage.setSubject("Ссылка для восстановления пароля");
       mailMessage.setText("/login/change-password/" + codeRecovery);
-      JavaMailSender javaMailSender = mailConfig.javaMailSender();
       javaMailSender.send(mailMessage);
     }
 

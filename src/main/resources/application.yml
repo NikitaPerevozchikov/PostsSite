@@ -21,10 +21,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
   mail:
-    host: smtp.gmail.com
+    host: smtp.yandex.ru
     port: 587
-    username: user@gmail.com
-    password: username
+    username: skillboxperevozchikov@yandex.ru
+    password: P123456789!
     properties:
       mail:
         transport:
@@ -32,7 +32,7 @@ spring:
         smtp:
           auth: true
           starttls:
-            enable: false
+            enable: true
         debug: false
 cloudinary:
   cloud_name: hnlgwe8wh
