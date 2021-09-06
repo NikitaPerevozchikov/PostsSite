@@ -2,7 +2,6 @@ package main.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,7 +29,8 @@ public class Tag {
 
   @JsonIgnore
   @ManyToMany()
-  @JoinTable(name = "tag2post",
+  @JoinTable(
+      name = "tag2post",
       joinColumns = {@JoinColumn(name = "tag_id")},
       inverseJoinColumns = {@JoinColumn(name = "post_id")})
   private List<Post> posts;

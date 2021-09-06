@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
-
 @JsonInclude(Include.NON_EMPTY)
 public class CommentResponse {
 

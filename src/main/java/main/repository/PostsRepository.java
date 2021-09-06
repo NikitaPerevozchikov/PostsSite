@@ -18,14 +18,11 @@ public interface PostsRepository extends CrudRepository<Post, Integer> {
   Post findByPostId(@Param("id") int id);
 
   @Query(
-      value =
-          "select * from posts where user_id = :user_id and is_active = 1 group by id;",
+      value = "select * from posts where user_id = :user_id and is_active = 1 group by id;",
       nativeQuery = true)
   List<Post> findByUserIdWActive(@Param("user_id") int id);
 
-  @Query(
-      value = "select * from posts where is_active = 1 group by id;",
-      nativeQuery = true)
+  @Query(value = "select * from posts where is_active = 1 group by id;", nativeQuery = true)
   List<Post> findAllWActive();
 
   @Query(
@@ -37,6 +34,18 @@ public interface PostsRepository extends CrudRepository<Post, Integer> {
               + "group by id ",
       nativeQuery = true)
   Page<Post> findGroupById(Pageable pageable);
+
+  @Query(
+      value =
+          "select * from posts as p "
+              + "left join post_votes as pv on pv.post_id = p.id "
+              + "where p.is_active = 1 "
+              + "and p.moderation_status = 'ACCEPTED' "
+              + "and p.time <= now() "
+              + "group by p.id "
+              + "order by sum(case when pv.value=1 then 1 else 0 end) desc ",
+      nativeQuery = true)
+  Page<Post> findGroupByLikes(Pageable pageable);
 
   @Query(
       value =

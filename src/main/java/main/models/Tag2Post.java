@@ -9,7 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -22,19 +21,11 @@ public class Tag2Post {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @JoinColumn(
-      name = "post_id",
-      updatable = false,
-      nullable = false,
-      columnDefinition = "INT")
+  @JoinColumn(name = "post_id", updatable = false, nullable = false, columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private Post post;
 
-  @JoinColumn(
-      name = "tag_id",
-      updatable = false,
-      nullable = false,
-      columnDefinition = "INT")
+  @JoinColumn(name = "tag_id", updatable = false, nullable = false, columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private Tag tag;
 }

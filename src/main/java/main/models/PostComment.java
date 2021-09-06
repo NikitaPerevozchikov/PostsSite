@@ -26,19 +26,11 @@ public class PostComment {
   @Column(name = "parent_id", columnDefinition = "INT")
   private Integer parentId;
 
-  @JoinColumn(
-      name = "post_id",
-      updatable = false,
-      nullable = false,
-      columnDefinition = "INT")
+  @JoinColumn(name = "post_id", updatable = false, nullable = false, columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private Post post;
 
-  @JoinColumn(
-      name = "user_id",
-      updatable = false,
-      nullable = false,
-      columnDefinition = "INT")
+  @JoinColumn(name = "user_id", updatable = false, nullable = false, columnDefinition = "INT")
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
 

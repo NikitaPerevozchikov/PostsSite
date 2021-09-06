@@ -5,7 +5,6 @@ import main.api.request.CommentRequest;
 import main.api.request.GlobalSettingsRequest;
 import main.api.request.ModerationRequest;
 import main.api.request.UserUpdateRequest;
-import main.api.response.CommentResponse;
 import main.api.response.GlobalSettingsResponse;
 import main.api.response.InitResponse;
 import main.api.response.PostResponse;

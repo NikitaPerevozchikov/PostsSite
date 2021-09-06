@@ -26,7 +26,6 @@ import main.models.ModerationStatus;
 import main.models.Post;
 import main.models.PostVote;
 import main.models.Tag;
-import main.models.Tag2Post;
 import main.repository.GlobalSettingsRepository;
 import main.repository.PostVotesRepository;
 import main.repository.PostsRepository;
@@ -74,8 +73,7 @@ public class PostsService {
         (mode.equals("popular")
             ? postsRepository.findGroupByComments(PageRequest.of(offset, limit, Sort.unsorted()))
             : mode.equals("best")
-                ? postsRepository.findGroupByComments(
-                    PageRequest.of(offset, limit, Sort.unsorted()))
+                ? postsRepository.findGroupByLikes(PageRequest.of(offset, limit, Sort.unsorted()))
                 : mode.equals("early")
                     ? postsRepository.findGroupById(PageRequest.of(offset, limit, Sort.by("time")))
                     : postsRepository.findGroupById(

@@ -13,7 +13,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Table(name = "users")
@@ -42,26 +41,23 @@ public class User {
 
   @Column(columnDefinition = "VARCHAR(255)")
   private String code;
+
   @Column(columnDefinition = "TEXT")
   private String photo;
-
-  public Role getRole () {
-    return isModerator ? Role.MODERATOR : Role.USER;
-  }
-
   @JsonIgnore
   @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL)
   private List<Post> moderationPosts;
-
   @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Post> posts;
-
   @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<PostVote> postVotes;
-
   @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<PostComment> comments;
+
+  public Role getRole() {
+    return isModerator ? Role.MODERATOR : Role.USER;
+  }
 }
